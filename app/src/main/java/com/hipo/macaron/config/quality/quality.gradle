@@ -19,6 +19,7 @@ task ktlint(type: JavaExec, group: "verification") {
 }
 
 detekt {
+    failFast = false
     toolVersion = "1.13.1"
     def configFile = new File(rootDir, 'detekt-config.yml')
     if (!configFile.exists()) {
