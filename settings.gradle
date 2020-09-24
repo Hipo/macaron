@@ -1,2 +1,3 @@
+include ':biometric-utils'
 rootProject.name = "Macaron"
 include ':app'
