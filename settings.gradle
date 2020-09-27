@@ -1,2 +1,3 @@
+include ':photocropping'
 rootProject.name = "Macaron"
 include ':app'
