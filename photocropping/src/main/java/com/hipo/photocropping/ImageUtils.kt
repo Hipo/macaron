@@ -1,8 +1,12 @@
 package com.hipo.photocropping
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.StringRes
@@ -65,19 +69,31 @@ fun getImageChooserIntent(
 }
 
 /**
- * Returns image to load
+ * Returns image that saved in app's external files
  *
- * If image url is provided, returns image url to load from server
- * Otherwise, returns new file to load from local with file provider.
- *
- * @param imageUrl Image url to load from server.
  * @param context Needed to create new File.
- * @param postfix If you give postfix to a image file while creating for camera intent,
- * to load the same file same postfix must be given.
+ * @param imageName Name of the image file that saved in app's external files.
  */
-fun getImageToLoad(imageUrl: String?, context: Context?, postfix: String?): Any? {
-    return imageUrl ?: context?.run {
-        File(getImageFilePath(this, postfix ?: BuildConfig.LIBRARY_PACKAGE_NAME))
+fun getImageBitmapFromExternalFiles(
+    context: Context,
+    imageName: String = BuildConfig.LIBRARY_PACKAGE_NAME
+): Bitmap? {
+    return BitmapFactory.decodeFile(getImageFilePath(context, imageName))
+}
+
+/**
+ * Returns image bitmap from local storage
+ *
+ * @param contentResolver Needed to get image from local storage
+ * @param imageUri Image uri path
+ */
+fun getImageBitmapFromLocal(contentResolver: ContentResolver, imageUri: String?): Bitmap? {
+    return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+        ImageDecoder.createSource(contentResolver, Uri.parse(imageUri)).let { bitmapSrc ->
+            ImageDecoder.decodeBitmap(bitmapSrc)
+        }
+    } else {
+        MediaStore.Images.Media.getBitmap(contentResolver, Uri.parse(imageUri))
     }
 }
 
