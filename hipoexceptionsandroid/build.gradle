@@ -1,0 +1,80 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply from: 'versions.gradle'
+
+android {
+    compileSdkVersion targets.compileSdkVersion
+    buildToolsVersion "29.0.1"
+
+
+    defaultConfig {
+        minSdkVersion targets.minSdkVersion
+        targetSdkVersion targets.targetSdkVersion
+        versionCode library.versionCode
+        versionName library.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+ext {
+    bintrayRepo = 'HipoExceptions'
+    bintrayName = 'com.hipo.hipoexceptionsandroid'
+
+    publishedGroupId = 'com.hipo.hipoexceptionsandroid'
+    libraryName = 'hipoexceptions'
+    artifact = 'hipoexceptions'
+    userOrganization = 'hipo'
+
+    libraryDescription = 'Parse api error json response to create error object'
+
+    siteUrl = 'https://github.com/Hipo/hipo-exceptions-android'
+    gitUrl = 'https://github.com/Hipo/hipo-exceptions-android.git'
+
+    libraryVersion = '1.0.0'
+
+    developerId = 'tolgacanunal'
+    developerName = 'Tolga Can Unal'
+    developerEmail = 'tolgacnunal@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.google.code.gson:gson:${libVersions.gson}"
+
+    implementation "com.google.firebase:firebase-core:${libVersions.firebase}"
+    implementation "com.crashlytics.sdk.android:crashlytics:${libVersions.crashlytics}"
+    implementation "com.squareup.retrofit2:retrofit:${libVersions.retrofit}"
+
+    testImplementation "com.squareup.retrofit2:converter-gson:${testLibVersions.gsonConverter}"
+    testImplementation "com.squareup.okhttp3:mockwebserver:${testLibVersions.mockWebServer}"
+    testImplementation "junit:junit:${testLibVersions.junit}"
+}
+
+apply from: 'publish.gradle'

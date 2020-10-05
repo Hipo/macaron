@@ -1,2 +1,3 @@
+include ':hipoexceptionsandroid'
 rootProject.name = "Macaron"
 include ':app'
