@@ -1,22 +1,3 @@
-test-pattern: # Configure exclusions for test sources
-  active: true
-  patterns: # Test file regexes
-    - '.*/test/.*'
-    - '.*Test.kt'
-    - '.*Spec.kt'
-    - '.*/generated/.*'
-  exclude-rule-sets:
-    - 'comments'
-  exclude-rules:
-    - 'NamingRules'
-    - 'WildcardImport'
-    - 'MagicNumber'
-    - 'MaxLineLength'
-    - 'LateinitUsage'
-    - 'StringLiteralDuplication'
-    - 'SpreadOperator'
-    - 'TooManyFunctions'
-
 build:
   warningThreshold: 5
   failThreshold: 10
@@ -54,6 +35,7 @@ output-reports:
 
 comments:
   active: true
+  excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**"
   CommentOverPrivateFunction:
     active: false
   CommentOverPrivateProperty:
@@ -104,13 +86,14 @@ complexity:
     threshold: 5
   StringLiteralDuplication:
     active: false
+    excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**"
     threshold: 3
     ignoreAnnotation: true
     excludeStringsWithLessThan5Characters: true
     ignoreStringsRegex: '$^'
   TooManyFunctions:
     active: true
-    excludes: "**/ViewModelModule.kt, **/BuildersModule.kt"
+    excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**, **/ViewModelModule.kt, **/BuildersModule.kt"
     thresholdInFiles: 20
     thresholdInClasses: 30
     thresholdInInterfaces: 50
@@ -252,6 +235,7 @@ performance:
     active: true
   SpreadOperator:
     active: true
+    excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**"
   UnnecessaryTemporaryInstantiation:
     active: true
 
@@ -273,6 +257,7 @@ potential-bugs:
     active: false
   LateinitUsage:
     active: false
+    excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**"
     excludeAnnotatedProperties: ""
     ignoreOnClassesPattern: ""
   UnconditionalJumpStatementInLoop:
@@ -314,6 +299,7 @@ style:
     maxJumpCount: 1
   MagicNumber:
     active: true
+    excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**"
     ignoreNumbers: '-1,0,1,2'
     ignoreHashCodeFunction: false
     ignorePropertyDeclaration: false
@@ -324,7 +310,7 @@ style:
     ignoreEnums: false
   MaxLineLength:
     active: true
-    excludes: "**/ViewModelModule.kt, **/BuildersModule.kt"
+    excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**, **/ViewModelModule.kt, **/BuildersModule.kt"
     maxLineLength: 120
     excludePackageStatements: true
     excludeImportStatements: true
@@ -383,3 +369,4 @@ style:
   WildcardImport:
     active: true
     excludeImports: 'java.util.*,kotlinx.android.synthetic.*'
+    excludes: "**/*Test.kt, **/*Spec.kt, **/test/**, **/generated/**"
