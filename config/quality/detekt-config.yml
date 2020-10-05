@@ -1,6 +1,4 @@
 build:
-  warningThreshold: 5
-  failThreshold: 10
   maxIssues: 10
   weights:
   # complexity: 2
