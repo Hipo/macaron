@@ -15,7 +15,7 @@ task ktlint(type: JavaExec, group: "verification") {
     classpath = configurations.ktlint
     main = "com.pinterest.ktlint.Main"
     args "src/**/*.kt"
-    args "--reporter=html,artifact=me.cassiano:ktlint-html-reporter:0.2.3,output=${buildDir}/reports/ktlint/ktlint.html"
+    args "--reporter=html,output=${buildDir}/reports/ktlint/ktlint.html"
 }
 
 detekt {
