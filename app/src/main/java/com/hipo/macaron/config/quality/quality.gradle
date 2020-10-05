@@ -7,7 +7,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.33.0"
+    ktlint "com.pinterest:ktlint:0.39.0"
 }
 
 task ktlint(type: JavaExec, group: "verification") {
@@ -20,7 +20,7 @@ task ktlint(type: JavaExec, group: "verification") {
 
 detekt {
     failFast = false
-    toolVersion = "1.13.1"
+    toolVersion = "1.14.1"
     def configFile = new File(rootDir, 'detekt-config.yml')
     if (!configFile.exists()) {
         new URL('https://raw.githubusercontent.com/Hipo/macaron/master/config/quality/detekt-config.yml')
