@@ -43,7 +43,7 @@ detekt {
 checkstyle {
     // assign the latest checkstyle version explicitly
     // default version is very old, likes 5.9
-    toolVersion = '8.10.1'
+    toolVersion = '8.36.2'
 }
 
 task checkstyle(type: Checkstyle) {
