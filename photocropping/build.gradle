@@ -42,3 +42,5 @@ dependencies {
     // PhotoView
     api 'com.github.chrisbanes:PhotoView:2.3.0'
 }
+
+apply from: 'publish.gradle'
