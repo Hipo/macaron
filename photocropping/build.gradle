@@ -43,4 +43,5 @@ dependencies {
     api 'com.github.chrisbanes:PhotoView:2.3.0'
 }
 
-apply from: 'publish.gradle'
+tasks.withType(Javadoc).all { enabled = false }
+apply from: 'https://raw.githubusercontent.com/Hipo/macaron/c917d4c65c658b5c16f24e204da734476a33a176/photocropping/publish.gradle'
