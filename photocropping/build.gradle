@@ -44,4 +44,4 @@ dependencies {
 }
 
 tasks.withType(Javadoc).all { enabled = false }
-apply from: 'https://raw.githubusercontent.com/Hipo/macaron/c917d4c65c658b5c16f24e204da734476a33a176/photocropping/publish.gradle'
+apply from: 'https://raw.githubusercontent.com/Hipo/macaron/46272b328713c80bcbbf25e97431e647a16836de/publish/publish.gradle'
