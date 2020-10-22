@@ -1,4 +1,4 @@
 include ':photocropping'
-include ':biometric-utils'
+include ':biometricutils'
 rootProject.name = "Macaron"
 include ':app'
