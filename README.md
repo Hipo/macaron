@@ -13,7 +13,7 @@ Create new properties file for developer details called `developer.properties` i
 developerId=
 developerName=
 developerEmail=
-developerOrganisation = 'hipo'
+developerOrganisation=hipo
 ```
 
 ### library.properties
@@ -32,19 +32,24 @@ libraryDescription=
 
 ### local.properties
 
-Add bintray username and bintray api key to `local.properties` as shown below;
+To publish manually, add bintray username and bintray api key to `local.properties` as shown below;
 
 ```
 bintrayUser=
 bintrayApiKey=
 ```
 
+
+**OR**
+
+Add `BINTRAY_USER` and `BINTRAY_API_KEY` secret variables to Bitrise if they are not already added and let the Bitrise handle publishing.
+
+
+
 ### build.gradle (library module)
 Add snippet below at the end of the build.gradle file in library module.
 
 ```
-// Uncomment the line below if you get Javadoc error while running `./gradlew install`
-// tasks.withType(Javadoc).all { enabled = false }
 apply from: 'https://raw.githubusercontent.com/Hipo/macaron/46272b328713c80bcbbf25e97431e647a16836de/publish/publish.gradle'
 ```
 
@@ -52,10 +57,16 @@ apply from: 'https://raw.githubusercontent.com/Hipo/macaron/46272b328713c80bcbbf
 
 ## Publishing
 
-After settings up the module, run 3 commands below to publish it on Bintray;
+To publish on Bintray, push a tag to master as `[VERSION]-[MODULE_NAME]`
+
+Example; `1.0.0-alpha03-biometricutils` will publish `biometricutils` module.
+
+**Last part of the tag must be the module name**
+
+Bitrise will run commands below based on the module name at the end of the tag;
 
 * `./gradlew [MODULE_NAME]:checkProperties`: Checks if there is any missing property in created property files.
-* `./gradlew [MODULE_NAME]:install`: Generates `aar`, `pom`, `sources.jar` and `javadoc.jar` files.
+* `./gradlew [MODULE_NAME]:install`: Generates `aar`, `pom` files.
 * `./gradlew [MODULE_NAME]:bintrayUpload`: Uploads generated files to bintray.
 
 ## Structure
