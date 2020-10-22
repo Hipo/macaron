@@ -50,10 +50,10 @@ Add `BINTRAY_USER` and `BINTRAY_API_KEY` secret variables to Bitrise if they are
 Add snippet below at the end of the build.gradle file in library module.
 
 ```
-apply from: 'https://raw.githubusercontent.com/Hipo/macaron/46272b328713c80bcbbf25e97431e647a16836de/publish/publish.gradle'
+apply from: 'https://raw.githubusercontent.com/Hipo/macaron/master/publish/publish.gradle'
 ```
 
-[publish.gradle](https://raw.githubusercontent.com/Hipo/macaron/46272b328713c80bcbbf25e97431e647a16836de/publish/publish.gradle) contains everything to check, install and upload to bintray easily. It uses properties defined in `developer.properties`, `library.properties`, `macaron.properties`, `license.properties` and `local.properties`
+[publish.gradle](https://github.com/Hipo/macaron/blob/master/publish/publish.gradle) contains everything to check, install and upload to bintray easily. It uses properties defined in `developer.properties`, `library.properties`, `macaron.properties`, `license.properties` and `local.properties`
 
 ## Publishing
 
