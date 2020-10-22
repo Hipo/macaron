@@ -2,9 +2,22 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
 // Bintray Api Properties
+String bintrayUser = new String()
+String bintrayApiKey = new String()
 Properties localProperties = new Properties()
 String localPropertiesFileName = new String('local.properties')
-localProperties.load(file("$rootDir/$localPropertiesFileName").newDataInputStream())
+def localPropertiesFile = file("$rootDir/$localPropertiesFileName")
+boolean hasLocalProperties = localPropertiesFile.exists()
+
+// If local.properties doesn't exist, then we get bintrayUser & bintrayApiKey from Bintray secrets.
+if (hasLocalProperties) {
+    localProperties.load(localPropertiesFile.newDataInputStream())
+    bintrayUser = localProperties.getProperty("bintrayUser")
+    bintrayApiKey = localProperties.getProperty("bintrayApiKey")
+} else {
+    bintrayUser = System.getenv("BINTRAY_USER")
+    bintrayApiKey = System.getenv("BINTRAY_API_KEY")
+}
 
 // Developer Properties
 Properties developerProperties = new Properties()
@@ -27,7 +40,7 @@ String macaronPropertiesFileName = new String('macaron.properties')
 macaronProperties.load(file("$rootDir/$macaronPropertiesFileName").newDataInputStream())
 
 task checkProperties {
-    if (localProperties.contains('')) {
+    if (localProperties.contains('') && hasLocalProperties) {
         throwMissingValueException(localProperties, localPropertiesFileName)
     } else if (developerProperties.contains('')) {
         throwMissingValueException(developerProperties, developerPropertiesFileName)
@@ -94,23 +107,9 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
 bintray {
-    user = localProperties.getProperty("bintrayUser")
-    key = localProperties.getProperty("bintrayApiKey")
+    user = bintrayUser
+    key = bintrayApiKey
 
     configurations = ['archives']
     pkg {
@@ -119,7 +118,7 @@ bintray {
         desc = libraryProperties.getProperty('libraryDescription')
         websiteUrl = macaronProperties.getProperty('macaronSiteUrl')
         vcsUrl = macaronProperties.getProperty('macaronGitUrl')
-        licenses = licenseProperties.getProperty('allLicenses')
+        licenses = licenseProperties.getProperty('allLicenses').split(",")
         publish = true
         publicDownloadNumbers = true
         userOrg = developerProperties.getProperty('developerOrganisation')
