@@ -1,6 +1,9 @@
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
+// Publish
+String publishFolderName = new String('publish')
+
 // Bintray Api Properties
 String bintrayUser = new String()
 String bintrayApiKey = new String()
@@ -32,12 +35,12 @@ libraryProperties.load(file("$rootDir/${project.name}/$libraryPropertiesFileName
 // License Properties
 Properties licenseProperties = new Properties()
 String licensePropertiesFileName = new String('license.properties')
-licenseProperties.load(file("$rootDir/$licensePropertiesFileName").newDataInputStream())
+licenseProperties.load(file("$rootDir/$publishFolderName/$licensePropertiesFileName").newDataInputStream())
 
 // Macaron Properties
 Properties macaronProperties = new Properties()
 String macaronPropertiesFileName = new String('macaron.properties')
-macaronProperties.load(file("$rootDir/$macaronPropertiesFileName").newDataInputStream())
+macaronProperties.load(file("$rootDir/$publishFolderName/$macaronPropertiesFileName").newDataInputStream())
 
 task checkProperties {
     if (localProperties.contains('') && hasLocalProperties) {

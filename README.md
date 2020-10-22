@@ -85,9 +85,12 @@ Project
  |   |-- library.properties
  |   \-- developer.properties
  |
- +-- macaron.properties
- |
- +-- license.properties
+ +-- publish
+ |   |
+ |   |-- bintray-publish-script.sh
+ |   |-- license.properties
+ |   |-- macaron.properties
+ |   \-- publish.gradle
  |
  +-- local.properties
 ...
