@@ -7,7 +7,7 @@ set -x
 # Set array split symbol which is '-'
 IFS='-'
 
-# To get bitrise tag, we have to call without double quotes. Calling without double quotes
+# To get bitrise tag, we have to call without double quotes. Calling with double quotes
 # causes splitting issue. That's why we need to create new variable and call it with double quotes.
 TAG=$BITRISE_GIT_TAG
 
