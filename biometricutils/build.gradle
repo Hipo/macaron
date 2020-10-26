@@ -41,3 +41,5 @@ dependencies {
 
     implementation "androidx.biometric:biometric:1.0.1"
 }
+
+apply from: 'https://raw.githubusercontent.com/Hipo/macaron/master/publish/publish.gradle'
