@@ -43,22 +43,22 @@ String macaronPropertiesFileName = new String('macaron.properties')
 macaronProperties.load(file("$rootDir/$publishFolderName/$macaronPropertiesFileName").newDataInputStream())
 
 task checkProperties {
-    if (localProperties.contains('') && hasLocalProperties) {
+    if (localProperties && hasLocalProperties) {
         throwMissingValueException(localProperties, localPropertiesFileName)
-    } else if (developerProperties.contains('')) {
+    } else if (developerProperties) {
         throwMissingValueException(developerProperties, developerPropertiesFileName)
-    } else if (libraryProperties.contains('')) {
+    } else if (libraryProperties) {
         throwMissingValueException(libraryProperties, libraryPropertiesFileName)
-    } else if (licenseProperties.contains('')) {
+    } else if (licenseProperties) {
         throwMissingValueException(licenseProperties, licensePropertiesFileName)
-    } else if (macaronProperties.contains('')) {
+    } else if (macaronProperties) {
         throwMissingValueException(macaronProperties, macaronPropertiesFileName)
     }
 }
 
 private static def throwMissingValueException(propertyMap, fileName) {
     propertyMap.each { entry ->
-        if (entry.value == '') {
+        if (!entry.value) {
             throw new Exception("${entry.key} is empty in $fileName")
         }
     }
