@@ -1,3 +1,4 @@
+include ':hipoexceptionsandroid'
 include ':photocropping'
 include ':biometricutils'
 rootProject.name = "Macaron"
