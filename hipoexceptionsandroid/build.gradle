@@ -39,31 +39,6 @@ android {
     }
 }
 
-ext {
-    bintrayRepo = 'HipoExceptions'
-    bintrayName = 'com.hipo.hipoexceptionsandroid'
-
-    publishedGroupId = 'com.hipo.hipoexceptionsandroid'
-    libraryName = 'hipoexceptions'
-    artifact = 'hipoexceptions'
-    userOrganization = 'hipo'
-
-    libraryDescription = 'Parse api error json response to create error object'
-
-    siteUrl = 'https://github.com/Hipo/hipo-exceptions-android'
-    gitUrl = 'https://github.com/Hipo/hipo-exceptions-android.git'
-
-    libraryVersion = '1.0.0'
-
-    developerId = 'tolgacanunal'
-    developerName = 'Tolga Can Unal'
-    developerEmail = 'tolgacnunal@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.google.code.gson:gson:${libVersions.gson}"
@@ -77,4 +52,5 @@ dependencies {
     testImplementation "junit:junit:${testLibVersions.junit}"
 }
 
-apply from: 'publish.gradle'
+tasks.withType(Javadoc).all { enabled = false }
+apply from: 'https://raw.githubusercontent.com/Hipo/macaron/master/publish/publish.gradle'
