@@ -1,0 +1,148 @@
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+// Publish
+String publishFolderName = new String('publish')
+
+// Bintray Api Properties
+String bintrayUser = new String()
+String bintrayApiKey = new String()
+Properties localProperties = new Properties()
+String localPropertiesFileName = new String('local.properties')
+def localPropertiesFile = file("$rootDir/$localPropertiesFileName")
+boolean hasLocalProperties = localPropertiesFile.exists()
+
+// If local.properties doesn't exist, then we get bintrayUser & bintrayApiKey from Bintray secrets.
+if (hasLocalProperties) {
+    localProperties.load(localPropertiesFile.newDataInputStream())
+    bintrayUser = localProperties.getProperty("bintrayUser")
+    bintrayApiKey = localProperties.getProperty("bintrayApiKey")
+} else {
+    bintrayUser = System.getenv("BINTRAY_USER")
+    bintrayApiKey = System.getenv("BINTRAY_API_KEY")
+}
+
+// Developer Properties
+Properties developerProperties = new Properties()
+String developerPropertiesFileName = new String('developer.properties')
+developerProperties.load(file("$rootDir/${project.name}/$developerPropertiesFileName").newDataInputStream())
+
+// Library Properties
+Properties libraryProperties = new Properties()
+String libraryPropertiesFileName = new String('library.properties')
+libraryProperties.load(file("$rootDir/${project.name}/$libraryPropertiesFileName").newDataInputStream())
+
+// License Properties
+Properties licenseProperties = new Properties()
+String licensePropertiesFileName = new String('license.properties')
+licenseProperties.load(file("$rootDir/$publishFolderName/$licensePropertiesFileName").newDataInputStream())
+
+// Macaron Properties
+Properties macaronProperties = new Properties()
+String macaronPropertiesFileName = new String('macaron.properties')
+macaronProperties.load(file("$rootDir/$publishFolderName/$macaronPropertiesFileName").newDataInputStream())
+
+task checkProperties {
+    if (hasLocalProperties) {
+        throwMissingValueExceptionIfNeed(localProperties, localPropertiesFileName)
+    }
+
+    throwMissingValueExceptionIfNeed(developerProperties, developerPropertiesFileName)
+    throwMissingValueExceptionIfNeed(macaronProperties, macaronPropertiesFileName)
+    throwMissingValueExceptionIfNeed(licenseProperties, licensePropertiesFileName)
+    throwMissingValueExceptionIfNeed(libraryProperties, libraryPropertiesFileName)
+}
+
+private static def throwMissingValueExceptionIfNeed(propertyMap, fileName) {
+    propertyMap.each { entry ->
+        if (!entry.value) {
+            throw new Exception("${entry.key} is empty in $fileName")
+        }
+    }
+}
+
+version = libraryProperties.getProperty('libraryVersion')
+group = macaronProperties.getProperty('publishedGroupId')    // Maven Group ID for the artifact
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                groupId macaronProperties.getProperty('publishedGroupId')
+                artifactId libraryProperties.getProperty('artifact')
+
+                // Add your description here
+                name libraryProperties.getProperty('libraryName')
+                description libraryProperties.getProperty('libraryDescription')
+                url macaronProperties.getProperty('macaronSiteUrl')
+
+                // Set your license
+                licenses {
+                    license {
+                        name licenseProperties.getProperty('licenseName')
+                        url licenseProperties.getProperty('licenseUrl')
+                    }
+                }
+                developers {
+                    developer {
+                        id developerProperties.getProperty('developerId')
+                        name developerProperties.getProperty('developerName')
+                        email developerProperties.getProperty('developerEmail')
+                    }
+                }
+                scm {
+                    connection macaronProperties.getProperty('macaronGitUrl')
+                    developerConnection macaronProperties.getProperty('macaronGitUrl')
+                    url macaronProperties.getProperty('macaronSiteUrl')
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayApiKey
+
+    configurations = ['archives']
+    pkg {
+        repo = macaronProperties.getProperty('bintrayRepoName')
+        name = libraryProperties.getProperty('libraryName')
+        desc = libraryProperties.getProperty('libraryDescription')
+        websiteUrl = macaronProperties.getProperty('macaronSiteUrl')
+        vcsUrl = macaronProperties.getProperty('macaronGitUrl')
+        licenses = licenseProperties.getProperty('allLicenses').split(",")
+        publish = true
+        publicDownloadNumbers = true
+        userOrg = developerProperties.getProperty('developerOrganisation')
+        version {
+            desc = libraryProperties.getProperty('libraryDescription')
+            // Uncomment 4 lines below to enable gpg auto signing
+            //gpg {
+            //    sign = true //Determines whether to GPG sign the files. The default is false
+            //    passphrase = properties.getProperty("bintray.gpg.password")
+            //}
+        }
+    }
+}
