@@ -125,10 +125,10 @@ This library can parse jsons below;
 ## Installation
 Add below implementation line into app module build.gradle
 
-![Bintray](https://img.shields.io/bintray/v/hipo/HipoExceptions/com.hipo.hipoexceptionsandroid)
+![Bintray](https://img.shields.io/bintray/v/hipo/Macaron/com.hipo.hipoexceptionsandroid)
 
 ```
-implementation 'com.github.Hipo:hipo-exceptions-android:[LatestVersion]'
+implementation 'com.hipo.macaron:hipoexceptions:[LatestVersion]'
 ```
 
 ## Usage
