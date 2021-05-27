@@ -22,20 +22,10 @@ if (hasLocalProperties) {
     gprApiKey = System.getenv("GPR_API_KEY")
 }
 
-// Developer Properties
-Properties developerProperties = new Properties()
-String developerPropertiesFileName = new String('developer.properties')
-developerProperties.load(file("$rootDir/${project.name}/$developerPropertiesFileName").newDataInputStream())
-
 // Library Properties
 Properties libraryProperties = new Properties()
 String libraryPropertiesFileName = new String('library.properties')
 libraryProperties.load(file("$rootDir/${project.name}/$libraryPropertiesFileName").newDataInputStream())
-
-// License Properties
-Properties licenseProperties = new Properties()
-String licensePropertiesFileName = new String('license.properties')
-licenseProperties.load(file("$rootDir/$publishFolderName/$licensePropertiesFileName").newDataInputStream())
 
 // Macaron Properties
 Properties macaronProperties = new Properties()
@@ -47,9 +37,7 @@ task checkProperties {
         throwMissingValueExceptionIfNeed(localProperties, localPropertiesFileName)
     }
 
-    throwMissingValueExceptionIfNeed(developerProperties, developerPropertiesFileName)
     throwMissingValueExceptionIfNeed(macaronProperties, macaronPropertiesFileName)
-    throwMissingValueExceptionIfNeed(licenseProperties, licensePropertiesFileName)
     throwMissingValueExceptionIfNeed(libraryProperties, libraryPropertiesFileName)
 }
 
