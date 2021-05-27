@@ -30,6 +30,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -43,4 +46,4 @@ dependencies {
 }
 
 tasks.withType(Javadoc).all { enabled = false }
-apply from: 'https://raw.githubusercontent.com/Hipo/macaron/master/publish/publish.gradle'
+apply from: "$rootDir/publish/publish.gradle"

@@ -1,0 +1,16 @@
+String gprUser = new String()
+String gprReadApiKey = new String()
+gprUser = "hipo"
+gprReadApiKey = "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"
+
+repositories {
+    maven {
+        name = "Macaron"
+        url = uri("https://maven.pkg.github.com/Hipo/Macaron")
+
+        credentials {
+            username = gprUser ?: System.getenv("GPR_USER")
+            password = gprReadApiKey ?: System.getenv("GPR_READ_API_KEY")
+        }
+    }
+}

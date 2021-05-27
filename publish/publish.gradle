@@ -1,25 +1,25 @@
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
 
 // Publish
 String publishFolderName = new String('publish')
 
-// Bintray Api Properties
-String bintrayUser = new String()
-String bintrayApiKey = new String()
+// GitHub Packages Api Properties
+String gprUser = new String()
+String gprApiKey = new String()
+
 Properties localProperties = new Properties()
 String localPropertiesFileName = new String('local.properties')
 def localPropertiesFile = file("$rootDir/$localPropertiesFileName")
 boolean hasLocalProperties = localPropertiesFile.exists()
 
-// If local.properties doesn't exist, then we get bintrayUser & bintrayApiKey from Bintray secrets.
+// If local.properties doesn't exist, then we get gprUser & gprApiKey from Bintray secrets.
 if (hasLocalProperties) {
     localProperties.load(localPropertiesFile.newDataInputStream())
-    bintrayUser = localProperties.getProperty("bintrayUser")
-    bintrayApiKey = localProperties.getProperty("bintrayApiKey")
+    gprUser = localProperties.getProperty("gpr.usr")
+    gprApiKey = localProperties.getProperty("gpr.key")
 } else {
-    bintrayUser = System.getenv("BINTRAY_USER")
-    bintrayApiKey = System.getenv("BINTRAY_API_KEY")
+    gprUser = System.getenv("GPR_USER")
+    gprApiKey = System.getenv("GPR_API_KEY")
 }
 
 // Developer Properties
@@ -64,39 +64,58 @@ private static def throwMissingValueExceptionIfNeed(propertyMap, fileName) {
 version = libraryProperties.getProperty('libraryVersion')
 group = macaronProperties.getProperty('publishedGroupId')    // Maven Group ID for the artifact
 
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                groupId macaronProperties.getProperty('publishedGroupId')
-                artifactId libraryProperties.getProperty('artifact')
+publishing {
+    publications {
+        gpr(MavenPublication) {
+            groupId macaronProperties.getProperty('publishedGroupId')
+            artifactId libraryProperties.getProperty('artifact')
+            artifact("$buildDir/outputs/aar/$artifactId-release.aar")
 
-                // Add your description here
-                name libraryProperties.getProperty('libraryName')
-                description libraryProperties.getProperty('libraryDescription')
-                url macaronProperties.getProperty('macaronSiteUrl')
+            version libraryProperties.getProperty('libraryVersion')
+            description libraryProperties.getProperty('libraryDescription')
 
-                // Set your license
-                licenses {
-                    license {
-                        name licenseProperties.getProperty('licenseName')
-                        url licenseProperties.getProperty('licenseUrl')
+            pom {
+                name = libraryProperties.getProperty('libraryName')
+                packaging = 'aar'
+                url = macaronProperties.getProperty('projectSiteUrl')
+
+                withXml {
+                    final dependenciesNode = asNode().appendNode('dependencies')
+                    ext.addDependency = { Dependency dep, String scope ->
+                        if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                            return
+                        final dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.name)
+                        dependencyNode.appendNode('version', dep.version)
+                        dependencyNode.appendNode('scope', scope)
+                        if (!dep.transitive) {
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', '*')
+                            exclusionNode.appendNode('artifactId', '*')
+                        } else if (!dep.properties.excludeRules.empty) {
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            dep.properties.excludeRules.each { ExcludeRule rule ->
+                                exclusionNode.appendNode('groupId', rule.group ?: '*')
+                                exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                            }
+                        }
                     }
+                    configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
+                    configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
+                    configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
                 }
-                developers {
-                    developer {
-                        id developerProperties.getProperty('developerId')
-                        name developerProperties.getProperty('developerName')
-                        email developerProperties.getProperty('developerEmail')
-                    }
-                }
-                scm {
-                    connection macaronProperties.getProperty('macaronGitUrl')
-                    developerConnection macaronProperties.getProperty('macaronGitUrl')
-                    url macaronProperties.getProperty('macaronSiteUrl')
-                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = macaronProperties.getProperty('gitHubRepoName')
+            url = uri("https://maven.pkg.github.com/$gprUser/${macaronProperties.getProperty('gitHubRepoName')}")
+            credentials {
+                username = gprUser ?: System.getenv("GPR_USER")
+                password = gprApiKey ?: System.getenv("GPR_API_KEY")
             }
         }
     }
@@ -116,33 +135,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
 artifacts {
     archives javadocJar
     archives sourcesJar
-}
-
-bintray {
-    user = bintrayUser
-    key = bintrayApiKey
-
-    configurations = ['archives']
-    pkg {
-        repo = macaronProperties.getProperty('bintrayRepoName')
-        name = libraryProperties.getProperty('libraryName')
-        desc = libraryProperties.getProperty('libraryDescription')
-        websiteUrl = macaronProperties.getProperty('macaronSiteUrl')
-        vcsUrl = macaronProperties.getProperty('macaronGitUrl')
-        licenses = licenseProperties.getProperty('allLicenses').split(",")
-        publish = true
-        publicDownloadNumbers = true
-        userOrg = developerProperties.getProperty('developerOrganisation')
-        version {
-            desc = libraryProperties.getProperty('libraryDescription')
-            // Uncomment 4 lines below to enable gpg auto signing
-            //gpg {
-            //    sign = true //Determines whether to GPG sign the files. The default is false
-            //    passphrase = properties.getProperty("bintray.gpg.password")
-            //}
-        }
-    }
 }
