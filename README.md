@@ -92,6 +92,12 @@ To install one of these libraries, you must add this snippet below before module
 apply from: 'https://raw.githubusercontent.com/Hipo/macaron/master/packages.gradle'
 ```
 
+Example implementation:
+
+```
+implementation com.hipo.macaron:[ARTIFACT]:<version>
+```
+
 [publish.gradle](https://raw.githubusercontent.com/Hipo/macaron/master/packages.gradle) contains required `gprReadApiKey` to need to able to be used these libraries.
 
 ## Contributing
