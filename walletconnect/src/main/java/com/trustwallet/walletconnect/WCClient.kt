@@ -60,7 +60,7 @@ open class WCClient (
 
     var remotePeerId: String? = null
         private set
-    
+
     var chainId: String? = null
         private set
 
@@ -82,6 +82,7 @@ open class WCClient (
     var onBnbTxConfirm: (id: Long, order: WCBinanceTxConfirmParam) -> Unit = { _, _ -> Unit }
     var onGetAccounts: (id: Long) -> Unit = { _ -> Unit }
     var onSignTransaction: (id: Long, transaction: WCSignTransaction) -> Unit = {_, _ -> Unit }
+    var onSessionUpdate: (id: Long, sessionUpdate: WCSessionUpdate) -> Unit = { _, _ -> Unit }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         Log.d(TAG, "<< websocket opened >>")
@@ -271,6 +272,7 @@ open class WCClient (
                 if (!param.approved) {
                     killSession()
                 }
+                onSessionUpdate(request.id, param)
             }
             WCMethod.ETH_SIGN -> {
                 val params = gson.fromJson<List<String>>(request.params)
@@ -334,7 +336,7 @@ open class WCClient (
             }
         }
     }
-    
+
     private fun subscribe(topic: String): Boolean {
         val message = WCSocketMessage(
             topic = topic,
