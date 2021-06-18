@@ -4,3 +4,4 @@ include ':biometricutils'
 rootProject.name = "Macaron"
 include ':app'
 include ':maskededittext'
+include ':walletconnect'
