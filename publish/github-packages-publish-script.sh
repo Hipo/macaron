@@ -24,7 +24,7 @@ RELEASED_MODULE_NAME="${TAG_SPLIT_ARRAY[${#TAG_SPLIT_ARRAY[@]}-1]}"
 ./gradlew "$RELEASED_MODULE_NAME":checkProperties
 
 # Generates pom, aar packages
-./gradlew "$RELEASED_MODULE_NAME":install
+./gradlew "$RELEASED_MODULE_NAME":build
 
 # Uploads generated pom and aar packages
-./gradlew "$RELEASED_MODULE_NAME":bintrayUpload
+./gradlew "$RELEASED_MODULE_NAME":publish
