@@ -1,6 +1,4 @@
 apply plugin: 'io.gitlab.arturbosch.detekt'
-apply plugin: 'checkstyle'
-apply plugin: 'pmd'
 
 configurations {
     ktlint
@@ -24,7 +22,7 @@ detekt {
     def configFile = new File(rootDir, 'detekt-config.yml')
     if (!configFile.exists()) {
         new URL('https://raw.githubusercontent.com/Hipo/macaron/master/config/quality/detekt-config.yml')
-                .withInputStream{ i -> configFile.withOutputStream{ it << i }}
+                .withInputStream { i -> configFile.withOutputStream { it << i } }
     }
     input = files("$projectDir")
     config = files("$configFile")
@@ -40,46 +38,5 @@ detekt {
     }
 }
 
-checkstyle {
-    // assign the latest checkstyle version explicitly
-    // default version is very old, likes 5.9
-    toolVersion = '8.36.2'
-}
-
-task checkstyle(type: Checkstyle) {
-    // rules.xml copy from:
-    // https://raw.githubusercontent.com/checkstyle/checkstyle/checkstyle-7.4/src/main/resources/google_checks.xml
-    // the version should be as same as plugin version
-    config project.resources.text.fromUri(new URL('https://raw.githubusercontent.com/Hipo/macaron/master/config/quality/checkstyle.xml'))
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-    exclude '**/R.java'
-    exclude '**/BuildConfig.java'
-    classpath = files()
-
-    showViolations true
-
-    reports {
-        xml.enabled false
-        html.enabled true
-    }
-}
-
-
-task pmd(type: Pmd) {
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
-}
-
-preBuild.dependsOn('checkstyle')
 preBuild.dependsOn ktlint
 preBuild.dependsOn('detekt')
-//preBuild.dependsOn('pmd')
