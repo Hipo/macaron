@@ -3,8 +3,10 @@ package com.hipo.maskededittext.masks
 import com.hipo.maskededittext.Mask
 
 class CreditCardMask : Mask() {
+
     override val maskPattern: String
         get() = "####-####-####-####"
+
     override val returnPattern: String
         get() = "################"
 

@@ -1,6 +1,18 @@
 package com.hipo.maskededittext
 
-import com.hipo.maskededittext.masks.*
+import com.hipo.maskededittext.masks.CreditCardMask
+import com.hipo.maskededittext.masks.CurrencyMask
+import com.hipo.maskededittext.masks.CustomMask
+import com.hipo.maskededittext.masks.DateMask
+import com.hipo.maskededittext.masks.DateMonthYearMask
+import com.hipo.maskededittext.masks.IBANMask
+import com.hipo.maskededittext.masks.PhoneMask
+import com.hipo.maskededittext.masks.SSNMask
+import com.hipo.maskededittext.masks.StaticTextMask
+import com.hipo.maskededittext.masks.TCIdMask
+import com.hipo.maskededittext.masks.UnselectedMask
+import com.hipo.maskededittext.utils.extensions.specialChars
+
 
 abstract class Mask {
     abstract val maskPattern: String
@@ -9,6 +21,32 @@ abstract class Mask {
     abstract fun getParsedText(maskedText: String): String?
     abstract fun isValidToParse(maskedText: String): Boolean
     abstract fun filterMaskedText(maskedText: String): String
+
+    fun calculateUpcomingMaskDistance(start: Int): Int {
+        if (start == 0) {
+            return 0
+        }
+        var index = start
+        with(this) {
+            while (index in maskPattern.indices && specialChars.contains(maskPattern[index])) {
+                index++
+            }
+        }
+        return index
+    }
+
+    fun calculateCurrentMaskDistance(start: Int): Int {
+        if (start == 0) {
+            return 0
+        }
+        var index = start
+        with(this) {
+            while (index in maskPattern.indices && specialChars.contains(maskPattern[index])) {
+                index--
+            }
+        }
+        return index
+    }
 
     // Enum class order must be the same as attrs.xml order
     enum class Type : MaskCreator {
@@ -26,30 +64,35 @@ abstract class Mask {
         },
         CURRENCY {
             override fun create(maskPattern: String?, returnPattern: String?): Mask =
-                CurrencyMask(maskPattern.orEmpty())
+                CurrencyMask()
         },
         CUSTOM {
             override fun create(maskPattern: String?, returnPattern: String?): Mask =
-                CustomMask(
-                    maskPattern.orEmpty(),
-                    returnPattern.orEmpty()
-                )
+                CustomMask(maskPattern.orEmpty(), returnPattern.orEmpty())
         },
         STATIC_TEXT {
-            override fun create(maskPattern: String?, returnPattern: String?) =
+            override fun create(maskPattern: String?, returnPattern: String?): Mask =
                 StaticTextMask(maskPattern!!)
         },
         CREDIT_CARD {
-            override fun create(maskPattern: String?, returnPattern: String?) =
+            override fun create(maskPattern: String?, returnPattern: String?): Mask =
                 CreditCardMask()
         },
         DATE_MONTH_YEAR {
-            override fun create(maskPattern: String?, returnPattern: String?) =
+            override fun create(maskPattern: String?, returnPattern: String?): Mask =
                 DateMonthYearMask()
+        },
+        IBAN {
+            override fun create(maskPattern: String?, returnPattern: String?): Mask =
+                IBANMask()
+        },
+        TC_ID {
+            override fun create(maskPattern: String?, returnPattern: String?): Mask =
+                TCIdMask()
         },
         UNSELECTED {
             override fun create(maskPattern: String?, returnPattern: String?): Mask =
                 UnselectedMask()
-        }
+        },
     }
 }
