@@ -69,35 +69,35 @@ class MaskedTextInputEditText : TextInputEditText {
     private var textWatcher: TextWatcher? = null
     private var masker: BaseMasker? = null
 
-    private var maskPattern: String = ""
-    private var returnMaskPattern: String = ""
+    var maskPattern: String = ""
+    var returnMaskPattern: String = ""
 
-    private var maskType: Mask by Delegates.observable<Mask>(UnselectedMask()) { _, _, newValue ->
+    var maskType: Mask by Delegates.observable<Mask>(UnselectedMask()) { _, _, newValue ->
         setMasker(newValue)
     }
 
-    private var currencySettings = CurrencyMaskerSettings()
+    var currencySettings = CurrencyMaskerSettings()
 
     var onTextChangedListener: ((String) -> Unit)? = null
 
     private fun initAttributes(attrs: AttributeSet?, defStyle: Int = -1) {
-        context.obtainStyledAttributes(attrs, R.styleable.MaskedTextInputEditText, defStyle, 0).use { typedArray ->
+        context.obtainStyledAttributes(attrs, R.styleable.MaskedInputLayout, defStyle, 0).use { typedArray ->
             currencySettings.decimalSeparator =
-                typedArray.getString(R.styleable.MaskedTextInputEditText_decimalSeparator) ?: COMMA
+                typedArray.getString(R.styleable.MaskedInputLayout_decimalSeparator) ?: COMMA
             currencySettings.groupingSeparator =
-                typedArray.getString(R.styleable.MaskedTextInputEditText_groupingSeparator) ?: DOT
-            maskPattern = typedArray.getString(R.styleable.MaskedTextInputEditText_maskPattern)
+                typedArray.getString(R.styleable.MaskedInputLayout_groupingSeparator) ?: DOT
+            maskPattern = typedArray.getString(R.styleable.MaskedInputLayout_maskPattern)
                 ?: context.getString(R.string.currency_mask_pattern)
-            returnMaskPattern = typedArray.getString(R.styleable.MaskedTextInputEditText_returnPattern).orEmpty()
-            currencySettings.prefix = typedArray.getString(R.styleable.MaskedTextInputEditText_currencySuffix).orEmpty()
-            currencySettings.suffix = typedArray.getString(R.styleable.MaskedTextInputEditText_currencyPrefix).orEmpty()
+            returnMaskPattern = typedArray.getString(R.styleable.MaskedInputLayout_returnPattern).orEmpty()
+            currencySettings.prefix = typedArray.getString(R.styleable.MaskedInputLayout_currencySuffix).orEmpty()
+            currencySettings.suffix = typedArray.getString(R.styleable.MaskedInputLayout_currencyPrefix).orEmpty()
             currencySettings.decimalLimit = typedArray.getInteger(
-                R.styleable.MaskedTextInputEditText_currencyDecimalLimit,
+                R.styleable.MaskedInputLayout_currencyDecimalLimit,
                 CurrencyMaskerSettings.DEFAULT_DECIMAL_LIMIT
             ).also { decimalLimit -> CurrencyMasker.checkIfLimitSafe(decimalLimit) }
             maskType = Mask.Type.values()[
-                typedArray.getInt(R.styleable.MaskedTextInputEditText_maskType, Mask.Type.UNSELECTED.ordinal)
-            ].create(maskPattern, returnMaskPattern)
+                typedArray.getInt(R.styleable.MaskedInputLayout_maskType, Mask.Type.UNSELECTED.ordinal)
+            ].create(maskPattern, returnMaskPattern, currencySettings)
         }
         inputType = masker?.inputType ?: TYPE_CLASS_NUMBER
         keyListener = masker?.keyListener
@@ -193,7 +193,7 @@ class MaskedTextInputEditText : TextInputEditText {
 
     fun updateCurrencyModel(currencyMaskerSettings: CurrencyMaskerSettings) {
         this.currencySettings = currencyMaskerSettings
-        maskType = CurrencyMask()
+        maskType = CurrencyMask(currencyMaskerSettings = currencySettings)
     }
 
     fun setCurrencyText(currency: String) {

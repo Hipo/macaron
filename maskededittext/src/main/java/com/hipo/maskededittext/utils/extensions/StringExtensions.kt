@@ -18,7 +18,7 @@ private const val MONTH_FIELD_LOWER_LIMIT = "01"
 private const val DAY_FIELD_UPPER_LIMIT = "31"
 private const val DAY_FIELD_LOWER_LIMIT = "01"
 
-val specialChars = listOf('(', ')', '-', ' ', '/')
+internal val specialChars = listOf('(', ')', '-', ' ', '/')
 
 internal fun String.trimAllSpaces() = this.filter { !it.isWhitespace() }
 
