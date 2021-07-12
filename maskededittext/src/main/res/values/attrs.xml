@@ -20,6 +20,7 @@
     <attr name="currencyDecimalLimit" format="integer" />
     <attr name="currencyPrefix" format="string" />
     <attr name="currencySuffix" format="string" />
+    <attr name="isCursorFixed" format="boolean" />
 
     <declare-styleable name="MaskedInputLayout">
         <attr name="android:text" />
@@ -44,6 +45,7 @@
         <attr name="maskPattern" />
         <attr name="maskType" />
         <attr name="returnPattern" />
+        <attr name="isCursorFixed" />
     </declare-styleable>
 
 </resources>

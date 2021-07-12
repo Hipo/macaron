@@ -68,6 +68,7 @@ class MaskedTextInputEditText : TextInputEditText {
 
     private var textWatcher: TextWatcher? = null
     private var masker: BaseMasker? = null
+    private var isCursorFixed = false
 
     var maskPattern: String = ""
     var returnMaskPattern: String = ""
@@ -82,6 +83,7 @@ class MaskedTextInputEditText : TextInputEditText {
 
     private fun initAttributes(attrs: AttributeSet?, defStyle: Int = -1) {
         context.obtainStyledAttributes(attrs, R.styleable.MaskedInputLayout, defStyle, 0).use { typedArray ->
+            isCursorFixed = typedArray.getBoolean(R.styleable.MaskedInputLayout_isCursorFixed, false)
             currencySettings.decimalSeparator =
                 typedArray.getString(R.styleable.MaskedInputLayout_decimalSeparator) ?: COMMA
             currencySettings.groupingSeparator =
@@ -189,6 +191,14 @@ class MaskedTextInputEditText : TextInputEditText {
     override fun onDetachedFromWindow() {
         textWatcher = null
         super.onDetachedFromWindow()
+    }
+
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        if (isCursorFixed) {
+            setSelection(rawText.length, rawText.length)
+            return
+        }
+        super.onSelectionChanged(selStart, selEnd)
     }
 
     fun updateCurrencyModel(currencyMaskerSettings: CurrencyMaskerSettings) {

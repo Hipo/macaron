@@ -145,12 +145,12 @@ internal fun String.formatAsMask(mask: Mask): String {
                 ++nestedIndex
             }
             else -> {
-                if (index >= rawInput.length) {
-                    return formattedInput
-                }
                 formattedInput += rawInput[index]
                 ++index
                 ++nestedIndex
+                if (index >= rawInput.length) {
+                    return formattedInput
+                }
             }
         }
     }
