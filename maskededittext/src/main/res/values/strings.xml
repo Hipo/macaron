@@ -5,4 +5,5 @@
     <string name="exception_mask_pound_static">Static mask must contain maskPattern</string>
     <string name="exception_return_pound">Custom mask returnType must contain #</string>
     <string name="exception_unselected_mask">maskType must be selected</string>
+    <string name="currency_mask_pattern">#,##0.00</string>
 </resources>

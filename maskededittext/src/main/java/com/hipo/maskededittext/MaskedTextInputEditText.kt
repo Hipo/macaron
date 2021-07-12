@@ -86,7 +86,8 @@ class MaskedTextInputEditText : TextInputEditText {
                 typedArray.getString(R.styleable.MaskedTextInputEditText_decimalSeparator) ?: COMMA
             currencySettings.groupingSeparator =
                 typedArray.getString(R.styleable.MaskedTextInputEditText_groupingSeparator) ?: DOT
-            maskPattern = typedArray.getString(R.styleable.MaskedTextInputEditText_maskPattern).orEmpty()
+            maskPattern = typedArray.getString(R.styleable.MaskedTextInputEditText_maskPattern)
+                ?: context.getString(R.string.currency_mask_pattern)
             returnMaskPattern = typedArray.getString(R.styleable.MaskedTextInputEditText_returnPattern).orEmpty()
             currencySettings.prefix = typedArray.getString(R.styleable.MaskedTextInputEditText_currencySuffix).orEmpty()
             currencySettings.suffix = typedArray.getString(R.styleable.MaskedTextInputEditText_currencyPrefix).orEmpty()
