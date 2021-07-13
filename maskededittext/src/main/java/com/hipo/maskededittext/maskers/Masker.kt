@@ -6,34 +6,28 @@ import kotlin.properties.Delegates
 
 class Masker(
     override val mask: Mask,
-    override val onTextMaskedListener: (String) -> Unit
-) : BaseMasker {
+    override val onTextMaskedListener: (String, Int?) -> Unit
+) : BaseMasker() {
 
     override val inputType: Int
         get() = InputType.TYPE_CLASS_NUMBER
 
+    private var selection = 0
+
     private var text: String by Delegates.observable("") { _, _, newValue ->
-        onTextMaskedListener(newValue)
+        onTextMaskedListener(newValue, selection)
     }
 
-    override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int) {
-        if (charSequence == null) {
-            return
-        }
-        if (start >= mask.maskPattern.length) {
-            onTextMaskedListener(removeLastItem(charSequence))
+    override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int) {
+        if (charSequence.isNullOrEmpty()) {
+            selection = 0
+            text = ""
             return
         }
         when (count) {
-            IS_REMOVED -> {
-                handleDeletion(charSequence, start)
-            }
-            IS_ADDED -> {
-                handleAddition(charSequence, start)
-            }
-            else -> {
-                handleRestoration(charSequence)
-            }
+            IS_REMOVED -> handleDeletion(charSequence, start)
+            IS_ADDED -> handleAddition(charSequence, start)
+            else -> handleRestoration(charSequence)
         }
     }
 
@@ -106,11 +100,5 @@ class Masker(
                 index++
             }
         }
-    }
-
-    companion object {
-        const val POUND = '#'
-        const val IS_REMOVED = 0
-        const val IS_ADDED = 1
     }
 }

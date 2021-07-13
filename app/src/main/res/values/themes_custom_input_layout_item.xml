@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MaskedInputTextLayout" />
+
+    <style name="MaskedInputTextLayoutTheme">
+        <item name="textInputLayoutStyle">@style/InputLayoutStyle</item>
+        <item name="textInputEditTextStyle">@style/InputEditTextStyle</item>
+        <item name="textInputErrorStyle">@style/TextInputErrorStyle</item>
+        <item name="textInputHelperStyle">@style/TextInputHelperStyle</item>
+        <item name="endIconStyle">@style/EndIconStyle</item>
+        <item name="error">This is error message</item>
+        <item name="helper">This is helper message</item>
+    </style>
+
+    <style name="InputLayoutStyle">
+        <item name="android:minHeight">56dp</item>
+    </style>
+
+    <style name="InputEditTextStyle">
+        <item name="maskType">date</item>
+    </style>
+
+    <style name="TextInputErrorStyle">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textColor">@color/teal_700</item>
+    </style>
+
+    <style name="TextInputHelperStyle">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textColor">@color/teal_200</item>
+    </style>
+
+    <style name="EndIconStyle">
+        <item name="srcCompat">@drawable/ic_android</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+</resources>

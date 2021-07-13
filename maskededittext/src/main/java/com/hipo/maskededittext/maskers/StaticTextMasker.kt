@@ -6,21 +6,21 @@ import kotlin.properties.Delegates
 
 class StaticTextMasker(
     override val mask: Mask,
-    override val onTextMaskedListener: (String) -> Unit
-) : BaseMasker {
+    override val onTextMaskedListener: (String, Int?) -> Unit
+) : BaseMasker() {
 
     override val inputType: Int
         get() = InputType.TYPE_CLASS_NUMBER
 
     private var text: String by Delegates.observable("") { _, _, newValue ->
-        onTextMaskedListener(newValue)
+        onTextMaskedListener(newValue, null)
     }
 
     init {
         text = mask.maskPattern
     }
 
-    override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int) {
+    override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int) {
         if (charSequence == null) {
             return
         }
@@ -38,9 +38,5 @@ class StaticTextMasker(
         if (charSequence.startsWith(mask.maskPattern).not()) {
             text = mask.maskPattern
         }
-    }
-
-    companion object {
-        const val IS_REMOVED = 0
     }
 }

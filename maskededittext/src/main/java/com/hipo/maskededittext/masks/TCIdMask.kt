@@ -1,24 +1,25 @@
 package com.hipo.maskededittext.masks
 
 import com.hipo.maskededittext.Mask
+import com.hipo.maskededittext.utils.extensions.isValidIdentificationNumber
 
-class StaticTextMask(private val customMaskPatter: String) : Mask() {
+class TCIdMask : Mask() {
 
     override val maskPattern: String
-        get() = customMaskPatter
+        get() = "###########"
 
     override val returnPattern: String
-        get() = ""
+        get() = "###########"
 
     override fun getParsedText(maskedText: String): String? {
         return filterMaskedText(maskedText).takeIf { isValidToParse(maskedText) }
     }
 
     override fun isValidToParse(maskedText: String): Boolean {
-        return maskedText.length > maskPattern.length
+        return filterMaskedText(maskedText).isValidIdentificationNumber()
     }
 
     override fun filterMaskedText(maskedText: String): String {
-        return maskedText.substring(maskPattern.length, maskedText.length)
+        return maskedText.filter { it.isDigit() }
     }
 }

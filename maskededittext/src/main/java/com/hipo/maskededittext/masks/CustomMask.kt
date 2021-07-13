@@ -1,12 +1,13 @@
 package com.hipo.maskededittext.masks
 
 import com.hipo.maskededittext.Mask
-import com.hipo.maskededittext.maskers.Masker.Companion.POUND
+import com.hipo.maskededittext.maskers.BaseMasker.Companion.POUND
 
-class CustomMask(private val customMaskPattern: String, private val customReturnPattern: String) :
-    Mask() {
+class CustomMask(private val customMaskPattern: String, private val customReturnPattern: String) : Mask() {
+
     override val maskPattern: String
         get() = customMaskPattern
+
     override val returnPattern: String
         get() = customReturnPattern
 

@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <com.hipo.maskededittext.MaskedTextInputLayout
+        android:id="@+id/maskedTextLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:theme="@style/MaskedInputTextLayoutTheme"
+        app:layout_constraintBottom_toTopOf="@+id/mainPhotoCropDemoButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/mainPhotoCropDemoButton"
         android:layout_width="wrap_content"

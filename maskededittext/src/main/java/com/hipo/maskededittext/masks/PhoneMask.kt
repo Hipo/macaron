@@ -3,8 +3,10 @@ package com.hipo.maskededittext.masks
 import com.hipo.maskededittext.Mask
 
 class PhoneMask : Mask() {
+
     override val maskPattern: String
-        get() = "(###) ###-####"
+        get() = "0 (5##) ### ## ##"
+
     override val returnPattern: String
         get() = "##########"
 

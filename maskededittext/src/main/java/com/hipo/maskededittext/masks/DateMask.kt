@@ -1,10 +1,12 @@
 package com.hipo.maskededittext.masks
 
 import com.hipo.maskededittext.Mask
+import com.hipo.maskededittext.utils.extensions.isValidDate
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
 class DateMask : Mask() {
+
     override val maskPattern: String
         get() = "## / ## / ####"
 
@@ -23,7 +25,8 @@ class DateMask : Mask() {
         return try {
             with(SimpleDateFormat(INPUT_DATE_FORMAT)) {
                 isLenient = false
-                parse(maskedText) != null && maskedText.length == maskPattern.length
+                filterMaskedText(maskedText).isValidDate() ||
+                    (parse(maskedText) != null && maskedText.length == maskPattern.length)
             }
         } catch (parseException: ParseException) {
             false
@@ -35,7 +38,7 @@ class DateMask : Mask() {
     }
 
     companion object {
-        private const val INPUT_DATE_FORMAT = "MM / dd / yyyy"
+        private const val INPUT_DATE_FORMAT = "dd / MM / yyyy"
         private const val OUTPUT_DATE_FORMAT = "yyyy-MM-dd"
     }
 }
