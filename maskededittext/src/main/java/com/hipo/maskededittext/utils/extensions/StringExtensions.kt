@@ -53,20 +53,20 @@ internal fun String.formatAsIban(): String {
 
 internal fun String.formatAsCreditCard(): String {
     val cardNumber = filter { it.isDigit() }
-    val formattedIban = if (cardNumber.length > CreditCardMask.CREDIT_CARD_NUMBER_LENGTH) {
+    val formattedCreditCard = if (cardNumber.length > CreditCardMask.CREDIT_CARD_NUMBER_LENGTH) {
         cardNumber.substring(0, CreditCardMask.CREDIT_CARD_NUMBER_LENGTH)
     } else {
         cardNumber
     }
-    return formattedIban.replace("(\\w{4})".toRegex(), "$1 ").trim()
+    return formattedCreditCard.replace("(\\w{4})".toRegex(), "$1 ").trim()
 }
 
-internal fun String.formatAsDateMonthYear(year: Int, mask: Mask): String {
+internal fun String.formatAsDateMonthYear(mask: Mask): String {
     var dateMonthYear = filter { it.isDigit() }
     if (dateMonthYear.isEmpty()) return ""
 
     val monthField: String
-    var yearField: String
+    val yearField: String
 
     if (dateMonthYear[0].digitToInt() > 1) {
         monthField = "0${dateMonthYear[0]}"

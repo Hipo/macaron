@@ -54,14 +54,14 @@ class DateMonthYearMasker(
             text = text
             return
         }
-        val formattedDate = charSequence.toString().formatAsDateMonthYear(lastTwoDigitOfYear, mask)
+        val formattedDate = charSequence.toString().formatAsDateMonthYear(mask)
         endLength = formattedDate.length
         selection = handleCursorIndex(formattedDate, start + (endLength - startLength), false)
         text = formattedDate
     }
 
     private fun handleDeletion(charSequence: CharSequence, start: Int) {
-        val formattedDate = charSequence.toString().formatAsDateMonthYear(lastTwoDigitOfYear, mask)
+        val formattedDate = charSequence.toString().formatAsDateMonthYear(mask)
         if (start == 0) {
             selection = formattedDate.length
             text = formattedDate
@@ -73,7 +73,7 @@ class DateMonthYearMasker(
     }
 
     private fun handleRestoration(charSequence: CharSequence) {
-        val formattedDateMonthYear = charSequence.toString().formatAsDateMonthYear(lastTwoDigitOfYear, mask)
+        val formattedDateMonthYear = charSequence.toString().formatAsDateMonthYear(mask)
         selection = formattedDateMonthYear.length
         text = formattedDateMonthYear
     }

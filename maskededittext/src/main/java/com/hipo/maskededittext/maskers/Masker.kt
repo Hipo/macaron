@@ -12,15 +12,12 @@ class Masker(
     override val inputType: Int
         get() = InputType.TYPE_CLASS_NUMBER
 
-    private var selection = 0
-
     private var text: String by Delegates.observable("") { _, _, newValue ->
-        onTextMaskedListener(newValue, selection)
+        onTextMaskedListener(newValue, text.length)
     }
 
     override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int) {
         if (charSequence.isNullOrEmpty()) {
-            selection = 0
             text = ""
             return
         }
@@ -38,7 +35,10 @@ class Masker(
     private fun removeLastItem(chars: CharSequence) = chars.substring(0, chars.length - 1)
 
     private fun handleAddition(charSequence: CharSequence, start: Int) {
-        if (charSequence.isEmpty()) return
+        if (charSequence.isEmpty() || charSequence.length >= mask.maskPattern.length) {
+            text = text
+            return
+        }
         addFirstMaskIfNeed(start)
         text += charSequence.last()
         addUpcomingMasks(start)
