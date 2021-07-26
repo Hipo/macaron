@@ -2,11 +2,11 @@ package com.hipo.maskededittext.maskers
 
 import android.text.InputType
 import com.hipo.maskededittext.Mask
-import com.hipo.maskededittext.utils.extensions.formatAsMask
+import com.hipo.maskededittext.utils.extensions.formatAsCreditCard
 import com.hipo.maskededittext.utils.extensions.specialChars
 import kotlin.properties.Delegates
 
-class PhoneNumberMasker(
+class CreditCardMasker(
     override val mask: Mask,
     override val onTextMaskedListener: (String, Int?) -> Unit
 ) : BaseMasker() {
@@ -19,10 +19,7 @@ class PhoneNumberMasker(
         onTextMaskedListener(newValue, selection)
     }
 
-    private val phoneMaskMinCharCount = mask.maskPattern.substringBefore(HASH).length
-
     private var oldCursorPosition = 0
-    private var isUpcomingFieldSpecialChar = false
 
     private var startLength = 0
     private var endLength = 0
@@ -33,74 +30,64 @@ class PhoneNumberMasker(
     }
 
     override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int) {
-        if (charSequence.isNullOrEmpty() || charSequence.length <= phoneMaskMinCharCount) {
-            val defaultPhoneFormat = mask.maskPattern.substringBefore(HASH)
-            selection = defaultPhoneFormat.length
-            text = defaultPhoneFormat
+        if (charSequence.isNullOrEmpty()) {
+            selection = 0
+            text = ""
             return
         }
-        if (start < phoneMaskMinCharCount) {
-            selection = text.length
-            text = text
-            return
-        }
+
         startLength = charSequence.length
         when (count) {
-            IS_REMOVED -> handleDeletion(charSequence, selectionStart)
+            IS_REMOVED -> handleDeletion(charSequence, start)
             IS_ADDED -> handleAddition(charSequence, selectionStart)
             else -> handleRestoration(charSequence)
         }
     }
 
     private fun handleAddition(charSequence: CharSequence, start: Int) {
-        if (text.length >= mask.maskPattern.length) {
+        if (charSequence.length > mask.maskPattern.length) {
             selection = oldCursorPosition
             text = text
             return
         }
-        val formattedPhone = charSequence.toString().formatAsMask(mask)
-        endLength = formattedPhone.length
-        selection = handleCursorIndex(formattedPhone, getLengthDifferencesIfCursorEnd(start), false)
-        text = formattedPhone
+        val formattedCreditCardNumber = charSequence.toString().formatAsCreditCard()
+        endLength = formattedCreditCardNumber.length
+        selection = handleCursorIndex(formattedCreditCardNumber, start, false)
+        text = formattedCreditCardNumber
     }
 
     private fun handleDeletion(charSequence: CharSequence, start: Int) {
-        val formattedPhone = charSequence.toString().formatAsMask(mask)
+        val formattedCreditCardNumber: String = charSequence.toString().formatAsCreditCard()
         if (start == 0) {
-            selection = formattedPhone.length
-            text = formattedPhone
+            selection = formattedCreditCardNumber.length
+            text = formattedCreditCardNumber
             return
         }
-        endLength = formattedPhone.length
-        selection = handleCursorIndex(formattedPhone, start, true)
-        text = formattedPhone
+        endLength = formattedCreditCardNumber.length
+        selection = handleCursorIndex(formattedCreditCardNumber, start, true)
+        text = formattedCreditCardNumber
     }
 
     private fun handleRestoration(charSequence: CharSequence) {
-        val formattedPhone = charSequence.toString().formatAsMask(mask)
-        selection = formattedPhone.length
-        text = formattedPhone
+        val formattedCreditCardNumber = charSequence.toString().formatAsCreditCard()
+        selection = formattedCreditCardNumber.length
+        text = formattedCreditCardNumber
     }
 
     private fun handleCursorIndex(charSequence: CharSequence, selectionIndex: Int, isDeletion: Boolean): Int = when {
-        selectionIndex <= phoneMaskMinCharCount -> charSequence.length
         selectionIndex >= charSequence.length -> charSequence.length
         specialChars.contains(charSequence[selectionIndex - 1]) -> {
-            handleSpecialCharState(selectionIndex - 1, isDeletion)
+            handleSpecialCharState(selectionIndex, isDeletion)
         }
         else -> selectionIndex
     }
 
     private fun handleSpecialCharState(cursor: Int, isDeletion: Boolean): Int {
         return if (isDeletion) {
-            mask.calculateCurrentMaskDistance(cursor) + 1
+            mask.calculateCurrentMaskDistance(cursor)
         } else {
             mask.calculateUpcomingMaskDistance(cursor) + 1
         }
-    }
-
-    private fun getLengthDifferencesIfCursorEnd(start: Int): Int {
-        return if (start < startLength) start else start + (endLength - startLength)
     }
 
     override fun getTextWithReturnPattern(): String? {

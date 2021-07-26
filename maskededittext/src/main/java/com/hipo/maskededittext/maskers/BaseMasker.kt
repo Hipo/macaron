@@ -17,7 +17,7 @@ abstract class BaseMasker {
         get() = DigitsKeyListener.getInstance(DIGITS)
 
     companion object {
-        const val POUND = '#'
+        const val HASH = '#'
         const val IS_REMOVED = 0
         const val IS_ADDED = 1
 

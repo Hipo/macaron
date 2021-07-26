@@ -22,13 +22,14 @@ import com.hipo.maskededittext.utils.viewbinding.viewBinding
 
 class MaskedTextInputLayout @JvmOverloads constructor(
     context: Context,
-    private val attrs: AttributeSet? = null,
+    attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : ConstraintLayout(context, attrs, defStyle) {
 
     private val binding = viewBinding(CustomMaskedInputLayoutBinding::inflate)
 
-    val editText = binding.textInputEditText
+    val editText
+        get() = binding.textInputEditText
 
     var endIconClick: (() -> Unit)? = null
 
@@ -105,18 +106,19 @@ class MaskedTextInputLayout @JvmOverloads constructor(
     var onTextChanged: ((text: String) -> Unit)? = null
 
     init {
-        loadAttrs()
+        loadAttrs(attrs)
         initUi()
     }
 
-    private fun loadAttrs() {
-        context.obtainStyledAttributes(attrs, R.styleable.MaskedInputLayout).use { attrs ->
+    private fun loadAttrs(attributeSet: AttributeSet?) {
+        context.obtainStyledAttributes(attributeSet, R.styleable.MaskedInputLayout).use { attrs ->
             text = attrs.getString(R.styleable.MaskedInputLayout_android_text).orEmpty()
             hint = attrs.getString(R.styleable.MaskedInputLayout_android_hint)
             error = attrs.getString(R.styleable.MaskedInputLayout_error)
             helper = attrs.getString(R.styleable.MaskedInputLayout_helper)
             inputType = attrs.getInteger(R.styleable.MaskedInputLayout_android_inputType, -1)
             maxLength = attrs.getInteger(R.styleable.MaskedInputLayout_android_maxLength, -1)
+            binding.textInputEditText.loadAttrs(attributeSet)
         }
     }
 

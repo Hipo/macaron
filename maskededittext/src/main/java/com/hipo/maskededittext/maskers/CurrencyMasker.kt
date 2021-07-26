@@ -90,7 +90,11 @@ class CurrencyMasker(
         }
 
         val inputWithoutPrefixAndSuffix =
-            charSequence.removeWithRegex("[$formattedCurrencyPrefix$formattedCurrencySuffix]")
+            if (formattedCurrencyPrefix.isNotBlank() || formattedCurrencySuffix.isNotBlank()) {
+                charSequence.removeWithRegex("[$formattedCurrencyPrefix$formattedCurrencySuffix]")
+            } else {
+                charSequence
+            }
         val startLength = inputWithoutPrefixAndSuffix.length
 
         try {

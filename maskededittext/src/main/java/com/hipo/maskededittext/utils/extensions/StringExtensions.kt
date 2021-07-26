@@ -1,6 +1,7 @@
 package com.hipo.maskededittext.utils.extensions
 
 import com.hipo.maskededittext.Mask
+import com.hipo.maskededittext.masks.CreditCardMask
 import com.hipo.maskededittext.masks.IBANMask
 
 //region Regex Patterns
@@ -50,6 +51,16 @@ internal fun String.formatAsIban(): String {
     return formattedIban.replace("(\\w{4})".toRegex(), "$1 ").trim()
 }
 
+internal fun String.formatAsCreditCard(): String {
+    val cardNumber = filter { it.isDigit() }
+    val formattedIban = if (cardNumber.length > CreditCardMask.CREDIT_CARD_NUMBER_LENGTH) {
+        cardNumber.substring(0, CreditCardMask.CREDIT_CARD_NUMBER_LENGTH)
+    } else {
+        cardNumber
+    }
+    return formattedIban.replace("(\\w{4})".toRegex(), "$1 ").trim()
+}
+
 internal fun String.formatAsDateMonthYear(year: Int, mask: Mask): String {
     var dateMonthYear = filter { it.isDigit() }
     if (dateMonthYear.isEmpty()) return ""
@@ -72,18 +83,7 @@ internal fun String.formatAsDateMonthYear(year: Int, mask: Mask): String {
 
     if (dateMonthYear.isEmpty()) return monthField.formatAsMask(mask)
 
-    yearField = if (dateMonthYear[0].digitToInt() < year / 10) {
-        "${year / 10}"
-    } else {
-        "${dateMonthYear[0]}"
-    }
-    if (dateMonthYear.length > 1) {
-        if (dateMonthYear[1].digitToInt() < year % 10) {
-            yearField += year % 10
-        } else {
-            yearField += dateMonthYear[1]
-        }
-    }
+    yearField = dateMonthYear
 
     return "$monthField$yearField".formatAsMask(mask)
 }

@@ -61,7 +61,7 @@ class Masker(
     private fun removeCurrentMaskIfNeed(charSequence: CharSequence, start: Int): CharSequence {
         var index = start
         var tempText = charSequence
-        while (index > 0 && mask.maskPattern[index] != POUND) {
+        while (index > 0 && mask.maskPattern[index] != HASH) {
             tempText = removeLastItem(tempText)
             text = tempText
             index--
@@ -72,7 +72,7 @@ class Masker(
     private fun removeUpcomingMasks(charSequence: CharSequence) {
         var index = charSequence.length - 1
         var tempText = charSequence
-        while (index >= 0 && mask.maskPattern[index] != POUND && charSequence.length > 1) {
+        while (index >= 0 && mask.maskPattern[index] != HASH && charSequence.length > 1) {
             tempText = removeLastItem(tempText)
             text = tempText
             index--
@@ -82,7 +82,7 @@ class Masker(
     private fun addFirstMaskIfNeed(start: Int) {
         var index = start
         with(mask) {
-            while (maskPattern[index] != POUND) {
+            while (maskPattern[index] != HASH) {
                 text += maskPattern[index]
                 index++
             }
@@ -95,7 +95,7 @@ class Masker(
         }
         var index = text.length
         with(mask) {
-            while (index in maskPattern.indices && maskPattern[index] != POUND) {
+            while (index in maskPattern.indices && maskPattern[index] != HASH) {
                 text += maskPattern[index]
                 index++
             }

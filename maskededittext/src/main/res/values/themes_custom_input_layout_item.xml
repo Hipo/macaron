@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MaskedInputTextLayout" />
+
+    <style name="MaskedInputTextLayoutTheme">
+        <item name="textInputLayoutStyle">@style/InputLayoutStyle</item>
+        <item name="textInputEditTextStyle">@style/InputEditTextStyle</item>
+        <item name="textInputErrorStyle">@style/TextInputErrorStyle</item>
+        <item name="textInputHelperStyle">@style/TextInputHelperStyle</item>
+        <item name="endIconStyle">@style/EndIconStyle</item>
+    </style>
+
+    <style name="InputLayoutStyle" parent="Base.Widget.MaterialComponents.TextInputLayout">
+        <item name="android:minHeight">56dp</item>
+        <item name="android:textColorHint">@color/gray_300</item>
+        <item name="hintTextColor">@color/gray_300</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="errorTextColor">@color/red_300</item>
+        <item name="errorIconDrawable">@drawable/ic_error</item>
+        <item name="errorIconTint">@color/red_300</item>
+        <item name="passwordToggleTint">@color/red_300</item>
+    </style>
+
+    <style name="InputEditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:imeOptions">actionNext</item>
+        <item name="android:inputType">text</item>
+        <item name="android:paddingTop">@dimen/spacing_12</item>
+        <item name="android:paddingBottom">@dimen/spacing_12</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="TextInputErrorStyle">
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_marginTop">@dimen/spacing_12</item>
+        <item name="android:textColor">@color/red_300</item>
+        <item name="android:drawablePadding">@dimen/spacing_12</item>
+        <item name="drawableStartCompat">@drawable/ic_error</item>
+        <item name="drawableTint">@color/red_300</item>
+    </style>
+
+    <style name="TextInputHelperStyle">
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_marginTop">@dimen/spacing_12</item>
+        <item name="android:textColor">@color/gray_300</item>
+    </style>
+
+    <style name="EndIconStyle">
+        <item name="srcCompat">@drawable/ic_error</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+</resources>

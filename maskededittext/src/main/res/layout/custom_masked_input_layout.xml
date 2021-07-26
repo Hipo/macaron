@@ -36,7 +36,7 @@
         app:layout_constraintBottom_toBottomOf="@id/textInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/textInputLayout"
-        tools:srcCompat="@drawable/ic_android"
+        tools:srcCompat="@drawable/ic_error"
         tools:visibility="visible" />
 
     <TextView
@@ -47,9 +47,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout"
-        tools:text="Error Text"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@id/textInputLayout" />
 
     <TextView
         android:id="@+id/helperTextView"
@@ -59,8 +57,6 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/errorTextView"
-        tools:text="Helper Text"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@id/errorTextView" />
 
 </merge>

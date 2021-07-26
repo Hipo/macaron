@@ -29,7 +29,7 @@ class DateMonthYearMask : Mask() {
     }
 
     companion object {
-        private const val INPUT_DATE_FORMAT = "MM/yyyy"
+        private const val INPUT_DATE_FORMAT = "MM/yy"
         private const val OUTPUT_DATE_FORMAT = "MM-yy"
     }
 }

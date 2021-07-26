@@ -2,12 +2,12 @@ package com.hipo.maskededittext
 
 import android.content.Context
 import android.text.Editable
-import android.text.InputType.TYPE_CLASS_NUMBER
 import android.text.TextWatcher
 import android.util.AttributeSet
 import androidx.core.content.res.use
 import com.google.android.material.textfield.TextInputEditText
 import com.hipo.maskededittext.maskers.BaseMasker
+import com.hipo.maskededittext.maskers.CreditCardMasker
 import com.hipo.maskededittext.maskers.CurrencyMasker
 import com.hipo.maskededittext.maskers.DateMasker
 import com.hipo.maskededittext.maskers.DateMonthYearMasker
@@ -16,6 +16,7 @@ import com.hipo.maskededittext.maskers.Masker
 import com.hipo.maskededittext.maskers.PhoneNumberMasker
 import com.hipo.maskededittext.maskers.StaticTextMasker
 import com.hipo.maskededittext.maskers.TCIdMasker
+import com.hipo.maskededittext.masks.CreditCardMask
 import com.hipo.maskededittext.masks.CurrencyMask
 import com.hipo.maskededittext.masks.CustomMask
 import com.hipo.maskededittext.masks.DateMask
@@ -28,17 +29,10 @@ import com.hipo.maskededittext.masks.UnselectedMask
 import com.hipo.maskededittext.model.CurrencyMaskerSettings
 import kotlin.properties.Delegates
 
-class MaskedTextInputEditText : TextInputEditText {
-
-    constructor(context: Context) : super(context)
-
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        initAttributes(attrs)
-    }
-
-    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
-        initAttributes(attrs, defStyle)
-    }
+class MaskedTextInputEditText @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : TextInputEditText(context, attrs) {
 
     val rawText: String
         get() = text.toString()
@@ -81,33 +75,68 @@ class MaskedTextInputEditText : TextInputEditText {
 
     var onTextChangedListener: ((String) -> Unit)? = null
 
-    private fun initAttributes(attrs: AttributeSet?, defStyle: Int = -1) {
-        context.obtainStyledAttributes(attrs, R.styleable.MaskedInputLayout, defStyle, 0).use { typedArray ->
-            isCursorFixed = typedArray.getBoolean(R.styleable.MaskedInputLayout_isCursorFixed, false)
-            currencySettings.decimalSeparator =
-                typedArray.getString(R.styleable.MaskedInputLayout_decimalSeparator) ?: COMMA
-            currencySettings.groupingSeparator =
-                typedArray.getString(R.styleable.MaskedInputLayout_groupingSeparator) ?: DOT
-            maskPattern = typedArray.getString(R.styleable.MaskedInputLayout_maskPattern)
-                ?: context.getString(R.string.currency_mask_pattern)
-            returnMaskPattern = typedArray.getString(R.styleable.MaskedInputLayout_returnPattern).orEmpty()
-            currencySettings.prefix = typedArray.getString(R.styleable.MaskedInputLayout_currencySuffix).orEmpty()
-            currencySettings.suffix = typedArray.getString(R.styleable.MaskedInputLayout_currencyPrefix).orEmpty()
-            currencySettings.decimalLimit = typedArray.getInteger(
-                R.styleable.MaskedInputLayout_currencyDecimalLimit,
-                CurrencyMaskerSettings.DEFAULT_DECIMAL_LIMIT
-            ).also { decimalLimit -> CurrencyMasker.checkIfLimitSafe(decimalLimit) }
-            maskType = Mask.Type.values()[
-                typedArray.getInt(R.styleable.MaskedInputLayout_maskType, Mask.Type.UNSELECTED.ordinal)
-            ].create(maskPattern, returnMaskPattern, currencySettings)
-        }
-        inputType = masker?.inputType ?: TYPE_CLASS_NUMBER
-        keyListener = masker?.keyListener
+    init {
+        loadAttrs(attrs)
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         initMaskedEditText()
+    }
+
+    override fun onDetachedFromWindow() {
+        textWatcher = null
+        super.onDetachedFromWindow()
+    }
+
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        if (isCursorFixed) {
+            setSelection(rawText.length, rawText.length)
+            return
+        }
+        super.onSelectionChanged(selStart, selEnd)
+    }
+
+    fun updateCurrencyModel(currencyMaskerSettings: CurrencyMaskerSettings) {
+        this.currencySettings = currencyMaskerSettings
+        maskType = CurrencyMask(currencyMaskerSettings = currencySettings)
+    }
+
+    fun setCurrencyText(currency: String) {
+        // TODO this is a quick fix, create a generic setter that works with every masker
+        masker.takeIf { it is CurrencyMasker }?.onTextChanged(currency, 0, currency.length, 0, selectionStart)
+    }
+
+    fun loadAttrs(attrs: AttributeSet?) {
+        context.obtainStyledAttributes(attrs, R.styleable.MaskedInputLayout).use { attrs ->
+            isCursorFixed = attrs.getBoolean(R.styleable.MaskedInputLayout_isCursorFixed, false)
+
+            currencySettings.decimalSeparator =
+                attrs.getString(R.styleable.MaskedInputLayout_decimalSeparator) ?: COMMA
+
+            currencySettings.groupingSeparator =
+                attrs.getString(R.styleable.MaskedInputLayout_groupingSeparator) ?: DOT
+
+            maskPattern = attrs.getString(R.styleable.MaskedInputLayout_maskPattern)
+                ?: context.getString(R.string.currency_mask_pattern)
+
+            returnMaskPattern = attrs.getString(R.styleable.MaskedInputLayout_returnPattern).orEmpty()
+
+            currencySettings.prefix = attrs.getString(R.styleable.MaskedInputLayout_currencyPrefix).orEmpty()
+            currencySettings.suffix = attrs.getString(R.styleable.MaskedInputLayout_currencySuffix).orEmpty()
+            currencySettings.decimalLimit = attrs.getInteger(
+                R.styleable.MaskedInputLayout_currencyDecimalLimit,
+                CurrencyMaskerSettings.DEFAULT_DECIMAL_LIMIT
+            ).also { decimalLimit -> CurrencyMasker.checkIfLimitSafe(decimalLimit) }
+
+            maskType = Mask.Type.values()[
+                attrs.getInt(R.styleable.MaskedInputLayout_maskType, Mask.Type.UNSELECTED.ordinal)
+            ].create(maskPattern, returnMaskPattern, currencySettings)
+        }
+        masker?.let {
+            inputType = it.inputType
+            keyListener = it.keyListener
+        }
     }
 
     private fun initMaskedEditText() {
@@ -135,6 +164,7 @@ class MaskedTextInputEditText : TextInputEditText {
             is CustomMask -> handleCustomMask(mask)
             is StaticTextMask -> handleStaticTextMask(mask)
             is CurrencyMask -> CurrencyMasker(mask, ::setEditTextWithoutTriggerListener, currencySettings)
+            is CreditCardMask -> CreditCardMasker(mask, ::setEditTextWithoutTriggerListener)
             is IBANMask -> IBANMasker(mask, ::setEditTextWithoutTriggerListener)
             is PhoneMask -> PhoneNumberMasker(mask, ::setEditTextWithoutTriggerListener)
             is DateMonthYearMask -> DateMonthYearMasker(mask, ::setEditTextWithoutTriggerListener)
@@ -151,7 +181,7 @@ class MaskedTextInputEditText : TextInputEditText {
         val defaultText = if (masker is CurrencyMasker) {
             "${currencySettings.prefix} 0${currencySettings.decimalSeparator}00 ${currencySettings.suffix}".trim()
         } else {
-            mask.maskPattern.substringBefore(POUND)
+            mask.maskPattern.substringBefore(HASH)
         }
         setText(defaultText)
     }
@@ -167,14 +197,14 @@ class MaskedTextInputEditText : TextInputEditText {
     }
 
     private fun handleCustomMask(mask: Mask): Masker = when {
-        maskPattern.contains(POUND).not() -> {
-            throw Exception("$LOG_TAG: ${context.getString(R.string.exception_mask_pound)}")
+        maskPattern.contains(HASH).not() -> {
+            throw Exception("$logTag: ${context.getString(R.string.exception_mask_hash)}")
         }
-        returnMaskPattern.contains(POUND).not() -> {
-            throw Exception("$LOG_TAG: ${context.getString(R.string.exception_return_pound)}")
+        returnMaskPattern.contains(HASH).not() -> {
+            throw Exception("$logTag: ${context.getString(R.string.exception_return_hash)}")
         }
-        maskPattern.count { it == POUND } != returnMaskPattern.count { it == POUND } -> {
-            throw Exception("$LOG_TAG: ${context.getString(R.string.exception_pound_count)}")
+        maskPattern.count { it == HASH } != returnMaskPattern.count { it == HASH } -> {
+            throw Exception("$logTag: ${context.getString(R.string.exception_hash_count)}")
         }
         else -> {
             Masker(mask, ::setEditTextWithoutTriggerListener)
@@ -183,37 +213,14 @@ class MaskedTextInputEditText : TextInputEditText {
 
     private fun handleStaticTextMask(mask: Mask): StaticTextMasker = when {
         maskPattern.isBlank() -> {
-            throw Exception("$LOG_TAG: ${context.getString(R.string.exception_mask_pound)}")
+            throw Exception("$logTag: ${context.getString(R.string.exception_mask_hash)}")
         }
         else -> StaticTextMasker(mask, ::setEditTextWithoutTriggerListener)
     }
 
-    override fun onDetachedFromWindow() {
-        textWatcher = null
-        super.onDetachedFromWindow()
-    }
-
-    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
-        if (isCursorFixed) {
-            setSelection(rawText.length, rawText.length)
-            return
-        }
-        super.onSelectionChanged(selStart, selEnd)
-    }
-
-    fun updateCurrencyModel(currencyMaskerSettings: CurrencyMaskerSettings) {
-        this.currencySettings = currencyMaskerSettings
-        maskType = CurrencyMask(currencyMaskerSettings = currencySettings)
-    }
-
-    fun setCurrencyText(currency: String) {
-        // TODO this is a quick fix, create a generic setter that works with every masker
-        masker.takeIf { it is CurrencyMasker }?.onTextChanged(currency, 0, currency.length, 0, selectionStart)
-    }
-
     companion object {
-        private val LOG_TAG = this::class.java.simpleName
-        private const val POUND = '#'
+        private val logTag = this::class.java.simpleName
+        private const val HASH = '#'
         private const val COMMA = ","
         private const val DOT = "."
     }

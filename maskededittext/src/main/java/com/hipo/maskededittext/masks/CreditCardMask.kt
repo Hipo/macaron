@@ -5,7 +5,7 @@ import com.hipo.maskededittext.Mask
 class CreditCardMask : Mask() {
 
     override val maskPattern: String
-        get() = "####-####-####-####"
+        get() = "#### #### #### ####"
 
     override val returnPattern: String
         get() = "################"
@@ -20,5 +20,9 @@ class CreditCardMask : Mask() {
 
     override fun filterMaskedText(maskedText: String): String {
         return maskedText.filter { it.isDigit() }
+    }
+
+    companion object {
+        const val CREDIT_CARD_NUMBER_LENGTH = 16
     }
 }
