@@ -67,85 +67,131 @@ class CurrencyMasker(
             return
         }
 
-        if (charSequence.length <= start) {
+        if (charSequence.length < start) {
             val currentCurrencyValue = if (text.isEmpty()) defaultText else text
             selection = getFormattedCurrencyDecimalLimitLeftIndex(currentCurrencyValue)
             text = currentCurrencyValue
             return
         }
 
-        if (!charSequence.contains(localeDecimalFormatSymbols.decimalSeparator) && isDeletion) {
-            onTextMaskedListener(text, start)
-            return
-        }
-
-        if ((charSequence[start] == localeDecimalFormatSymbols.decimalSeparator ||
-                charSequence[start] == localeDecimalFormatSymbols.groupingSeparator) && !isDeletion
-        ) {
-            val currentCurrencyValue = if (text.isEmpty()) defaultText else text
-            selection =
-                getFormattedCurrencyDecimalLimitRightIndex(currentCurrencyValue) - currencyPrefixLength - currencySuffixLength
-            text = currentCurrencyValue
-            return
-        }
-
-        val inputWithoutPrefixAndSuffix =
-            if (formattedCurrencyPrefix.isNotBlank() || formattedCurrencySuffix.isNotBlank()) {
-                charSequence.removeWithRegex("[$formattedCurrencyPrefix$formattedCurrencySuffix]")
-            } else {
-                charSequence
-            }
-        val startLength = inputWithoutPrefixAndSuffix.length
-
-        try {
-            val currencyWithoutGroupSeparator =
-                inputWithoutPrefixAndSuffix.removeWithRegex("[${localeDecimalFormatSymbols.groupingSeparator}]")
-
-            currencyFormatter.applyPattern(WHOLE_NUMBER_FORMAT)
-            val parsedNumber = currencyFormatter.parse(currencyWithoutGroupSeparator)!!
-            currencyFormatter.applyPattern(mask.maskPattern)
-            var formattedCurrency = currencyFormatter.format(parsedNumber)
-
-            val endLength = formattedCurrency.length
-            val cursorIndex = handleCursor(
-                subtractCurrencyPrefixIfValidOrZero(selectionStart + (endLength - startLength)),
-                formattedCurrency,
-                isDeletion
-            )
-
-            formattedCurrency = addSuffixAndPrefix(formattedCurrency)
-            selection = cursorIndex
-            text = formattedCurrency
-        } catch (e: ParseException) {
-            e.printStackTrace()
+        if (isDeletion) {
+            handleDeletion(charSequence, start)
+        } else {
+            handleAddition(charSequence, start, selectionStart)
         }
     }
 
-    private fun handleCursor(selection: Int, formattedCurrency: String, isDeletion: Boolean): Int = when {
+    private fun handleAddition(charSequence: CharSequence, start: Int, selectionStart: Int) {
+        if ((charSequence[start] == localeDecimalFormatSymbols.decimalSeparator ||
+                charSequence[start] == localeDecimalFormatSymbols.groupingSeparator)
+        ) {
+            val currentCurrencyValue = if (text.isEmpty()) defaultText else text
+            selection = getFormattedCurrencyDecimalLimitRightIndex(currentCurrencyValue) -
+                currencyPrefixLength -
+                currencySuffixLength
+            text = currentCurrencyValue
+            return
+        }
+        var rawCurrency = removePrefixAndSuffix(charSequence)
+        if (isAddedAfterDecimalPart(rawCurrency)) {
+            rawCurrency = replaceWithAddedNumber(rawCurrency, start - currencyPrefixLength)
+        }
+        val startLength = rawCurrency.length
+
+        var formattedCurrency = applyCurrencyPattern(rawCurrency)
+        val endLength = formattedCurrency.length
+
+        val cursorIndex = handleCursorForAddition(
+            subtractCurrencyPrefixIfValidOrZero(selectionStart + (endLength - startLength)),
+            formattedCurrency
+        )
+
+        formattedCurrency = addSuffixAndPrefix(formattedCurrency)
+        selection = cursorIndex
+        text = formattedCurrency
+
+    }
+
+    private fun handleDeletion(charSequence: CharSequence, start: Int) {
+        if (!charSequence.contains(localeDecimalFormatSymbols.decimalSeparator)) {
+            onTextMaskedListener(text, start)
+            return
+        }
+        var rawCurrency = removePrefixAndSuffix(charSequence)
+
+        if (isDeletedBeforeDecimalPart(rawCurrency)) {
+            rawCurrency = insertZero(rawCurrency, start - currencyPrefixLength)
+        }
+
+        val startLength = rawCurrency.length
+
+        var formattedCurrency = applyCurrencyPattern(rawCurrency)
+        val endLength = formattedCurrency.length
+
+        val cursorIndex = handleCursorForDeletion(
+            subtractCurrencyPrefixIfValidOrZero(start + (endLength - startLength)),
+            formattedCurrency,
+            endLength - startLength == 0
+        )
+
+        formattedCurrency = addSuffixAndPrefix(formattedCurrency)
+        selection = cursorIndex
+        text = formattedCurrency
+    }
+
+    private fun handleCursorForDeletion(selection: Int, formattedCurrency: String, isItemDeleted: Boolean): Int = when {
         selection <= 0 -> getFormattedCurrencyDecimalLimitLeftIndex(formattedCurrency)
         selection >= formattedCurrency.length -> {
-            if (isDeletion) {
-                selection - 1 + currencyPrefixLength
-            } else {
-                getFormattedCurrencyDecimalLimitLeftIndex(formattedCurrency)
-            }
+            if (isItemDeleted) selection + currencyPrefixLength else selection + currencyPrefixLength - 1
         }
-        isDeletion && (formattedCurrency[selection - 1] == localeDecimalFormatSymbols.groupingSeparator) -> {
+        formattedCurrency[selection - 1] == localeDecimalFormatSymbols.groupingSeparator -> {
             selection + currencyPrefixLength - 1
         }
         selection in (formattedCurrency.length - currencyMaskerSettings.decimalLimit)..formattedCurrency.length -> {
-            if (isDeletion) {
-                selection - 1 + currencyPrefixLength
+            selection + currencyPrefixLength
+        }
+        selection > 0 && selection <= formattedCurrency.length -> selection + currencyPrefixLength
+        else -> selection - 1
+    }
+
+    private fun handleCursorForAddition(selection: Int, formattedCurrency: String): Int = when {
+        selection <= 0 -> getFormattedCurrencyDecimalLimitLeftIndex(formattedCurrency)
+        selection >= formattedCurrency.length -> getFormattedCurrencyDecimalLimitLeftIndex(formattedCurrency)
+        selection in (formattedCurrency.length - currencyMaskerSettings.decimalLimit)..formattedCurrency.length -> {
+            if (selection + 1 > formattedCurrency.length) {
+                getFormattedCurrencyDecimalLimitLeftIndex(formattedCurrency)
             } else {
-                if (selection + 1 >= formattedCurrency.length) {
-                    getFormattedCurrencyDecimalLimitLeftIndex(formattedCurrency)
-                } else {
-                    selection + 1 + currencyPrefixLength
-                }
+                selection + currencyPrefixLength
             }
         }
         selection > 0 && selection <= formattedCurrency.length -> selection + currencyPrefixLength
-        else -> if (isDeletion) selection - 1 else selection
+        else -> selection
+    }
+
+    private fun removePrefixAndSuffix(charSequence: CharSequence): CharSequence {
+        return if (formattedCurrencyPrefix.isNotBlank() || formattedCurrencySuffix.isNotBlank()) {
+            charSequence.removeWithRegex("[$formattedCurrencyPrefix$formattedCurrencySuffix]")
+        } else {
+            charSequence
+        }
+    }
+
+    private fun removeGroupingSeparator(charSequence: CharSequence): String {
+        return charSequence.removeWithRegex("[${localeDecimalFormatSymbols.groupingSeparator}]")
+    }
+
+    private fun applyCurrencyPattern(charSequence: CharSequence): String {
+        return try {
+            val currencyWithoutGroupSeparator = removeGroupingSeparator(charSequence)
+            currencyFormatter.applyPattern(WHOLE_NUMBER_FORMAT)
+            val parsedNumber = currencyFormatter.parse(currencyWithoutGroupSeparator)!!
+            currencyFormatter.applyPattern(mask.maskPattern)
+            currencyFormatter.format(parsedNumber)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            ""
+        }
+
     }
 
     private fun subtractCurrencyPrefixIfValidOrZero(cursor: Int): Int {
@@ -164,6 +210,33 @@ class CurrencyMasker(
         return "$formattedCurrencyPrefix$currencyValue$formattedCurrencySuffix"
     }
 
+    private fun replaceWithAddedNumber(charSequence: CharSequence, start: Int): String {
+        val currencyValue = charSequence.toString()
+        if (charSequence.length - 1 <= start) {
+            return currencyValue.substring(0, charSequence.length - 1)
+        }
+        return currencyValue.replaceRange(start, start + 2, charSequence[start].toString())
+    }
+
+    private fun insertZero(charSequence: CharSequence, start: Int): String {
+        val currencyValue = charSequence.toString()
+        return currencyValue.replaceRange(start, start, ZERO)
+    }
+
+    private fun isAddedAfterDecimalPart(charSequence: CharSequence): Boolean {
+        val decimalValue = charSequence.toString()
+            .substringAfter(localeDecimalFormatSymbols.decimalSeparator)
+            .filter { it.isDigit() }
+        return decimalValue.length >= currencyMaskerSettings.decimalLimit + 1
+    }
+
+    private fun isDeletedBeforeDecimalPart(charSequence: CharSequence): Boolean {
+        val decimalValue = charSequence.toString()
+            .substringAfter(localeDecimalFormatSymbols.decimalSeparator)
+            .filter { it.isDigit() }
+        return decimalValue.length <= currencyMaskerSettings.decimalLimit - 1
+    }
+
     override fun getTextWithReturnPattern(): String? {
         return null
     }
@@ -172,6 +245,8 @@ class CurrencyMasker(
         private const val NO_DECIMAL_LIMIT = -1
 
         private const val WHOLE_NUMBER_FORMAT = "#,##0"
+
+        private const val ZERO = "0"
 
         fun checkIfLimitSafe(currencyDecimalLimit: Int) {
             if (currencyDecimalLimit < NO_DECIMAL_LIMIT) {
