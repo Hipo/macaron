@@ -6,6 +6,7 @@ import android.text.method.DigitsKeyListener
 import com.hipo.maskededittext.Mask
 import com.hipo.maskededittext.model.CurrencyMaskerSettings
 import com.hipo.maskededittext.utils.extensions.removeWithRegex
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.ParseException
@@ -55,6 +56,7 @@ class CurrencyMasker(
         maximumIntegerDigits = 2
         minimumFractionDigits = 0
         maximumFractionDigits = 2
+        roundingMode = RoundingMode.DOWN
         decimalFormatSymbols = localeDecimalFormatSymbols
     }
 
@@ -225,14 +227,14 @@ class CurrencyMasker(
 
     private fun isAddedAfterDecimalPart(charSequence: CharSequence): Boolean {
         val decimalValue = charSequence.toString()
-            .substringAfter(localeDecimalFormatSymbols.decimalSeparator)
+            .substringAfter(localeDecimalFormatSymbols.decimalSeparator, "")
             .filter { it.isDigit() }
         return decimalValue.length >= currencyMaskerSettings.decimalLimit + 1
     }
 
     private fun isDeletedBeforeDecimalPart(charSequence: CharSequence): Boolean {
         val decimalValue = charSequence.toString()
-            .substringAfter(localeDecimalFormatSymbols.decimalSeparator)
+            .substringAfter(localeDecimalFormatSymbols.decimalSeparator, "")
             .filter { it.isDigit() }
         return decimalValue.length <= currencyMaskerSettings.decimalLimit - 1
     }

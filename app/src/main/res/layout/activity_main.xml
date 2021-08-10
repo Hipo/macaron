@@ -24,9 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_40"
             android:hint="Currency"
-            android:theme="@style/MaskedInputTextLayoutTheme"
-            app:currencyPrefix="$"
-            app:currencySuffix="$"
+            android:theme="@style/MaskedInputTextLayoutTheme.Currency"
             app:maskType="currency" />
 
         <com.hipo.maskededittext.MaskedTextInputLayout

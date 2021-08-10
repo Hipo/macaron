@@ -3,6 +3,10 @@
 
     <style name="MaskedInputTextLayout" />
 
+    <style name="MaskedInputTextLayoutTheme.Currency">
+        <item name="textInputEditTextStyle">@style/InputEditTextStyle.Currency</item>
+    </style>
+
     <style name="MaskedInputTextLayoutTheme">
         <item name="textInputLayoutStyle">@style/InputLayoutStyle</item>
         <item name="textInputEditTextStyle">@style/InputEditTextStyle</item>
@@ -30,6 +34,10 @@
         <item name="android:paddingTop">@dimen/spacing_12</item>
         <item name="android:paddingBottom">@dimen/spacing_12</item>
         <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="InputEditTextStyle.Currency">
+        <item name="android:maxLength">18</item>
     </style>
 
     <style name="TextInputErrorStyle">
