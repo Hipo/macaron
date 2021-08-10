@@ -36,12 +36,21 @@ class IBANMasker(
             text = IBANMask.IBAN_PREFIX
             return
         }
+
+        if (charSequence.length < IBANMask.IBAN_PREFIX.length) {
+            selection = IBANMask.IBAN_PREFIX.length
+            text = IBANMask.IBAN_PREFIX
+            return
+        }
+
         if (start < IBANMask.IBAN_PREFIX.length) {
             selection = text.length
             text = text
             return
         }
+
         startLength = charSequence.length
+
         when (count) {
             IS_REMOVED -> handleDeletion(charSequence, start)
             IS_ADDED -> handleAddition(charSequence, selectionStart)

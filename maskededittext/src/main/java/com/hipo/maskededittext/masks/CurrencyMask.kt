@@ -16,7 +16,7 @@ class CurrencyMask(
 
     override fun getParsedText(maskedText: String): String? {
         val filteredText = filterMaskedText(maskedText).takeIf { isValidToParse(maskedText) } ?: defaultCurrencyValue
-        return filteredText.filter { it.isDigit() || it == currencyMaskerSettings?.decimalSeparator?.first() }
+        return filteredText.filter { it.isDigit() || it == currencyMaskerSettings?.decimalSeparator }
     }
 
     override fun isValidToParse(maskedText: String): Boolean {

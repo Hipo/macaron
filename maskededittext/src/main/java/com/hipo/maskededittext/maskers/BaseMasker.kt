@@ -1,5 +1,6 @@
 package com.hipo.maskededittext.maskers
 
+import android.graphics.Rect
 import android.text.method.DigitsKeyListener
 import com.hipo.maskededittext.Mask
 
@@ -7,6 +8,7 @@ abstract class BaseMasker {
     abstract fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int)
     abstract fun getTextWithReturnPattern(): String?
 
+    open fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {}
     open fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int, selectionStart: Int) {}
 
     abstract val onTextMaskedListener: (String, Int?) -> Unit

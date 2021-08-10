@@ -1,6 +1,7 @@
 package com.hipo.maskededittext
 
 import android.content.Context
+import android.graphics.Rect
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -63,6 +64,7 @@ class MaskedTextInputEditText @JvmOverloads constructor(
     private var textWatcher: TextWatcher? = null
     private var masker: BaseMasker? = null
     private var isCursorFixed = false
+    private val textWatchers = mutableSetOf<TextWatcher>()
 
     var maskPattern: String = ""
     var returnMaskPattern: String = ""
@@ -97,6 +99,11 @@ class MaskedTextInputEditText @JvmOverloads constructor(
         super.onSelectionChanged(selStart, selEnd)
     }
 
+    override fun addTextChangedListener(watcher: TextWatcher?) {
+        super.addTextChangedListener(watcher)
+        watcher?.let { textWatchers.add(it) }
+    }
+
     fun updateCurrencyModel(currencyMaskerSettings: CurrencyMaskerSettings) {
         this.currencySettings = currencyMaskerSettings
         maskType = CurrencyMask(currencyMaskerSettings = currencySettings)
@@ -112,10 +119,10 @@ class MaskedTextInputEditText @JvmOverloads constructor(
             isCursorFixed = attrs.getBoolean(R.styleable.MaskedInputLayout_isCursorFixed, false)
 
             currencySettings.decimalSeparator =
-                attrs.getString(R.styleable.MaskedInputLayout_decimalSeparator) ?: COMMA
+                attrs.getString(R.styleable.MaskedInputLayout_decimalSeparator)?.first() ?: COMMA
 
             currencySettings.groupingSeparator =
-                attrs.getString(R.styleable.MaskedInputLayout_groupingSeparator) ?: DOT
+                attrs.getString(R.styleable.MaskedInputLayout_groupingSeparator)?.first() ?: DOT
 
             maskPattern = attrs.getString(R.styleable.MaskedInputLayout_maskPattern)
                 ?: context.getString(R.string.currency_mask_pattern)
@@ -158,6 +165,13 @@ class MaskedTextInputEditText @JvmOverloads constructor(
         addTextChangedListener(textWatcher)
     }
 
+    override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        super.onFocusChanged(focused, direction, previouslyFocusedRect)
+        post {
+            masker?.onFocusChanged(focused, direction, previouslyFocusedRect)
+        }
+    }
+
     private fun setMasker(mask: Mask) {
         masker = when (mask) {
             is UnselectedMask -> return
@@ -187,11 +201,13 @@ class MaskedTextInputEditText @JvmOverloads constructor(
     }
 
     private fun setEditTextWithoutTriggerListener(newText: String, selection: Int?) {
-        removeTextChangedListener(textWatcher)
+        textWatchers.forEach {
+            removeTextChangedListener(it)
+        }
         setText(newText)
         setSelection(selection ?: newText.length)
-        textWatcher?.let { textWatcher ->
-            addTextChangedListener(textWatcher)
+        textWatchers?.forEach {
+            addTextChangedListener(it)
         }
         onTextChangedListener?.invoke(newText)
     }
@@ -221,7 +237,7 @@ class MaskedTextInputEditText @JvmOverloads constructor(
     companion object {
         private val logTag = this::class.java.simpleName
         private const val HASH = '#'
-        private const val COMMA = ","
-        private const val DOT = "."
+        private const val COMMA = ','
+        private const val DOT = '.'
     }
 }

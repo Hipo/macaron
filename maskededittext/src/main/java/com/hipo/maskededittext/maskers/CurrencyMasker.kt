@@ -1,5 +1,6 @@
 package com.hipo.maskededittext.maskers
 
+import android.graphics.Rect
 import android.text.InputType.TYPE_CLASS_NUMBER
 import android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
 import android.text.method.DigitsKeyListener
@@ -42,13 +43,9 @@ class CurrencyMasker(
 
     private var selection = 0
 
-    private var text by Delegates.observable("", { _, _, newValue ->
-        onTextMaskedListener(newValue, selection)
-    })
-
     private val localeDecimalFormatSymbols = DecimalFormatSymbols(currencyMaskerSettings.locale).apply {
-        decimalSeparator = currencyMaskerSettings.decimalSeparator.first()
-        groupingSeparator = currencyMaskerSettings.groupingSeparator.first()
+        decimalSeparator = currencyMaskerSettings.decimalSeparator
+        groupingSeparator = currencyMaskerSettings.groupingSeparator
     }
 
     private val currencyFormatter = DecimalFormat().apply {
@@ -59,6 +56,10 @@ class CurrencyMasker(
         roundingMode = RoundingMode.DOWN
         decimalFormatSymbols = localeDecimalFormatSymbols
     }
+
+    private var text by Delegates.observable(defaultText, { _, _, newValue ->
+        onTextMaskedListener(newValue, selection)
+    })
 
     override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int) {
         val isDeletion = count == IS_REMOVED
@@ -80,6 +81,16 @@ class CurrencyMasker(
             handleDeletion(charSequence, start)
         } else {
             handleAddition(charSequence, start, selectionStart)
+        }
+    }
+
+    override fun onFocusChanged(focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        super.onFocusChanged(focused, direction, previouslyFocusedRect)
+        if (focused) {
+            selection = text.indexOf(currencyMaskerSettings.decimalSeparator)
+            if (selection != -1) {
+                text = text
+            }
         }
     }
 
