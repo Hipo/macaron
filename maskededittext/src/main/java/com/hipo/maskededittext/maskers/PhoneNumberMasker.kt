@@ -39,11 +39,13 @@ class PhoneNumberMasker(
             text = defaultPhoneFormat
             return
         }
+
         if (start < phoneMaskMinCharCount) {
             selection = text.length
-            text = text
+            text = if (text.isEmpty()) charSequence.toString() else text
             return
         }
+
         startLength = charSequence.length
         when (count) {
             IS_REMOVED -> handleDeletion(charSequence, selectionStart)

@@ -16,6 +16,7 @@ import kotlin.properties.Delegates
 class CurrencyMasker(
     override val mask: Mask,
     override val onTextMaskedListener: (String, Int?) -> Unit,
+    val updateSelection: (Int?) -> Unit,
     private val currencyMaskerSettings: CurrencyMaskerSettings
 ) : BaseMasker() {
 
@@ -41,8 +42,6 @@ class CurrencyMasker(
         "${formattedCurrencyPrefix}0${localeDecimalFormatSymbols.decimalSeparator}00${formattedCurrencySuffix}"
     }
 
-    private var selection = 0
-
     private val localeDecimalFormatSymbols = DecimalFormatSymbols(currencyMaskerSettings.locale).apply {
         decimalSeparator = currencyMaskerSettings.decimalSeparator
         groupingSeparator = currencyMaskerSettings.groupingSeparator
@@ -59,6 +58,10 @@ class CurrencyMasker(
 
     private var text by Delegates.observable(defaultText, { _, _, newValue ->
         onTextMaskedListener(newValue, selection)
+    })
+
+    private var selection by Delegates.observable(0, { _, _, newValue ->
+        updateSelection(newValue)
     })
 
     override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int) {
@@ -88,9 +91,6 @@ class CurrencyMasker(
         super.onFocusChanged(focused, direction, previouslyFocusedRect)
         if (focused) {
             selection = text.indexOf(currencyMaskerSettings.decimalSeparator)
-            if (selection != -1) {
-                text = text
-            }
         }
     }
 
@@ -122,7 +122,6 @@ class CurrencyMasker(
         formattedCurrency = addSuffixAndPrefix(formattedCurrency)
         selection = cursorIndex
         text = formattedCurrency
-
     }
 
     private fun handleDeletion(charSequence: CharSequence, start: Int) {

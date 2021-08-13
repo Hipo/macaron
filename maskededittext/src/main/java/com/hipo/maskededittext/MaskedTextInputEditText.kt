@@ -64,7 +64,6 @@ class MaskedTextInputEditText @JvmOverloads constructor(
     private var textWatcher: TextWatcher? = null
     private var masker: BaseMasker? = null
     private var isCursorFixed = false
-    private val textWatchers = mutableSetOf<TextWatcher>()
 
     var maskPattern: String = ""
     var returnMaskPattern: String = ""
@@ -97,11 +96,6 @@ class MaskedTextInputEditText @JvmOverloads constructor(
             return
         }
         super.onSelectionChanged(selStart, selEnd)
-    }
-
-    override fun addTextChangedListener(watcher: TextWatcher?) {
-        super.addTextChangedListener(watcher)
-        watcher?.let { textWatchers.add(it) }
     }
 
     fun updateCurrencyModel(currencyMaskerSettings: CurrencyMaskerSettings) {
@@ -177,7 +171,7 @@ class MaskedTextInputEditText @JvmOverloads constructor(
             is UnselectedMask -> return
             is CustomMask -> handleCustomMask(mask)
             is StaticTextMask -> handleStaticTextMask(mask)
-            is CurrencyMask -> CurrencyMasker(mask, ::setEditTextWithoutTriggerListener, currencySettings)
+            is CurrencyMask -> CurrencyMasker(mask, ::setEditTextWithoutTriggerListener, ::updateSelection, currencySettings)
             is CreditCardMask -> CreditCardMasker(mask, ::setEditTextWithoutTriggerListener)
             is IBANMask -> IBANMasker(mask, ::setEditTextWithoutTriggerListener)
             is PhoneMask -> PhoneNumberMasker(mask, ::setEditTextWithoutTriggerListener)
@@ -200,16 +194,18 @@ class MaskedTextInputEditText @JvmOverloads constructor(
         setText(defaultText)
     }
 
-    private fun setEditTextWithoutTriggerListener(newText: String, selection: Int?) {
-        textWatchers.forEach {
-            removeTextChangedListener(it)
-        }
+    fun setEditTextWithoutTriggerListener(newText: String, selection: Int? = null) {
+        removeTextChangedListener(textWatcher)
         setText(newText)
         setSelection(selection ?: newText.length)
-        textWatchers?.forEach {
-            addTextChangedListener(it)
+        textWatcher?.let { textWatcher ->
+            addTextChangedListener(textWatcher)
         }
         onTextChangedListener?.invoke(newText)
+    }
+
+    private fun updateSelection(selection: Int? = null) {
+        setSelection(selection ?: text?.length ?: 0)
     }
 
     private fun handleCustomMask(mask: Mask): Masker = when {

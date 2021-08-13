@@ -10,7 +10,6 @@ import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.use
-import androidx.core.widget.addTextChangedListener
 import com.hipo.maskededittext.databinding.CustomMaskedInputLayoutBinding
 import com.hipo.maskededittext.model.CurrencyMaskerSettings
 import com.hipo.maskededittext.model.CustomInputState
@@ -19,6 +18,7 @@ import com.hipo.maskededittext.utils.extensions.setTextAndVisibility
 import com.hipo.maskededittext.utils.extensions.show
 import com.hipo.maskededittext.utils.extensions.showKeyboard
 import com.hipo.maskededittext.utils.viewbinding.viewBinding
+import kotlin.properties.Delegates
 
 class MaskedTextInputLayout @JvmOverloads constructor(
     context: Context,
@@ -103,7 +103,9 @@ class MaskedTextInputLayout @JvmOverloads constructor(
             }
         }
 
-    var onTextChanged: ((text: String) -> Unit)? = null
+    var onTextChanged: ((String) -> Unit)? by Delegates.observable(null, { _, _, newValue ->
+        editText.onTextChangedListener = newValue
+    })
 
     init {
         loadAttrs(attrs)
@@ -123,10 +125,6 @@ class MaskedTextInputLayout @JvmOverloads constructor(
     }
 
     private fun initUi() {
-        binding.textInputEditText.addTextChangedListener {
-            onTextChanged?.invoke(text)
-        }
-
         binding.iconImageView.setOnClickListener {
             endIconClick?.invoke()
         }
