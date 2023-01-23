@@ -19,8 +19,7 @@ task ktlint(type: JavaExec, group: "verification") {
 }
 
 detekt {
-    failFast = false
-    toolVersion = "1.14.1"
+    toolVersion = "1.22.0"
     def configFile = new File(rootDir, 'detekt-config.yml')
     if (!configFile.exists()) {
         new URL('https://raw.githubusercontent.com/Hipo/macaron/master/config/quality/detekt-config.yml')
