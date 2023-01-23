@@ -6,8 +6,13 @@ configurations {
     ktlint
 }
 
+buildscript {
+    ext.detekt_version = '1.22.0'
+}
+
 dependencies {
     ktlint "com.pinterest:ktlint:0.39.0"
+    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:$detekt_version"
 }
 
 task ktlint(type: JavaExec, group: "verification") {
@@ -19,7 +24,7 @@ task ktlint(type: JavaExec, group: "verification") {
 }
 
 detekt {
-    toolVersion = "1.22.0"
+    toolVersion = "$detekt_version"
     def configFile = new File(rootDir, 'detekt-config.yml')
     if (!configFile.exists()) {
         new URL('https://raw.githubusercontent.com/Hipo/macaron/master/config/quality/detekt-config.yml')
