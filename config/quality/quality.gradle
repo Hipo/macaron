@@ -34,11 +34,11 @@ detekt {
     config = files("$configFile")
     reports {
         xml {
-            enabled = true
+            required = true
             destination = file("$projectDir/build/reports/detekt/detek-report.xml")
         }
         html {
-            enabled = true
+            required = true
             destination = file("$projectDir/build/reports/detekt/detek-report.html")
         }
     }
@@ -65,8 +65,8 @@ task checkstyle(type: Checkstyle) {
     showViolations true
 
     reports {
-        xml.enabled false
-        html.enabled true
+        xml.required false
+        html.required true
     }
 }
 
@@ -78,8 +78,8 @@ task pmd(type: Pmd) {
     exclude '**/gen/**'
 
     reports {
-        xml.enabled = false
-        html.enabled = true
+        xml.required = false
+        html.required = true
     }
 }
 
