@@ -6,34 +6,25 @@ import kotlin.properties.Delegates
 
 class Masker(
     override val mask: Mask,
-    override val onTextMaskedListener: (String) -> Unit
-) : BaseMasker {
+    override val onTextMaskedListener: (String, Int?) -> Unit
+) : BaseMasker() {
 
     override val inputType: Int
         get() = InputType.TYPE_CLASS_NUMBER
 
     private var text: String by Delegates.observable("") { _, _, newValue ->
-        onTextMaskedListener(newValue)
+        onTextMaskedListener(newValue, text.length)
     }
 
-    override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int) {
-        if (charSequence == null) {
-            return
-        }
-        if (start >= mask.maskPattern.length) {
-            onTextMaskedListener(removeLastItem(charSequence))
+    override fun onTextChanged(charSequence: CharSequence?, start: Int, count: Int, before: Int, selectionStart: Int) {
+        if (charSequence.isNullOrEmpty()) {
+            text = ""
             return
         }
         when (count) {
-            IS_REMOVED -> {
-                handleDeletion(charSequence, start)
-            }
-            IS_ADDED -> {
-                handleAddition(charSequence, start)
-            }
-            else -> {
-                handleRestoration(charSequence)
-            }
+            IS_REMOVED -> handleDeletion(charSequence, start)
+            IS_ADDED -> handleAddition(charSequence, start)
+            else -> handleRestoration(charSequence)
         }
     }
 
@@ -44,7 +35,10 @@ class Masker(
     private fun removeLastItem(chars: CharSequence) = chars.substring(0, chars.length - 1)
 
     private fun handleAddition(charSequence: CharSequence, start: Int) {
-        if (charSequence.isEmpty()) return
+        if (charSequence.isEmpty() || charSequence.length >= mask.maskPattern.length) {
+            text = text
+            return
+        }
         addFirstMaskIfNeed(start)
         text += charSequence.last()
         addUpcomingMasks(start)
@@ -67,7 +61,7 @@ class Masker(
     private fun removeCurrentMaskIfNeed(charSequence: CharSequence, start: Int): CharSequence {
         var index = start
         var tempText = charSequence
-        while (index > 0 && mask.maskPattern[index] != POUND) {
+        while (index > 0 && mask.maskPattern[index] != HASH) {
             tempText = removeLastItem(tempText)
             text = tempText
             index--
@@ -78,7 +72,7 @@ class Masker(
     private fun removeUpcomingMasks(charSequence: CharSequence) {
         var index = charSequence.length - 1
         var tempText = charSequence
-        while (index >= 0 && mask.maskPattern[index] != POUND && charSequence.length > 1) {
+        while (index >= 0 && mask.maskPattern[index] != HASH && charSequence.length > 1) {
             tempText = removeLastItem(tempText)
             text = tempText
             index--
@@ -88,7 +82,7 @@ class Masker(
     private fun addFirstMaskIfNeed(start: Int) {
         var index = start
         with(mask) {
-            while (maskPattern[index] != POUND) {
+            while (maskPattern[index] != HASH) {
                 text += maskPattern[index]
                 index++
             }
@@ -101,16 +95,10 @@ class Masker(
         }
         var index = text.length
         with(mask) {
-            while (index in maskPattern.indices && maskPattern[index] != POUND) {
+            while (index in maskPattern.indices && maskPattern[index] != HASH) {
                 text += maskPattern[index]
                 index++
             }
         }
-    }
-
-    companion object {
-        const val POUND = '#'
-        const val IS_REMOVED = 0
-        const val IS_ADDED = 1
     }
 }

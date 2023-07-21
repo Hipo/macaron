@@ -1,12 +1,13 @@
 package com.hipo.maskededittext.masks
 
 import com.hipo.maskededittext.Mask
-import com.hipo.maskededittext.maskers.Masker.Companion.POUND
+import com.hipo.maskededittext.maskers.BaseMasker.Companion.HASH
 
-class CustomMask(private val customMaskPattern: String, private val customReturnPattern: String) :
-    Mask() {
+class CustomMask(private val customMaskPattern: String, private val customReturnPattern: String) : Mask() {
+
     override val maskPattern: String
         get() = customMaskPattern
+
     override val returnPattern: String
         get() = customReturnPattern
 
@@ -22,10 +23,10 @@ class CustomMask(private val customMaskPattern: String, private val customReturn
         val filteredText = StringBuilder(returnPattern)
         maskedText.mapIndexed { index, char ->
             char.toString().takeIf {
-                maskPattern[index] == POUND
+                maskPattern[index] == HASH
             }.orEmpty()
         }.joinToString("").map { filteredMaskedTextChar ->
-            filteredText[filteredText.indexOfFirst { it == POUND }] = filteredMaskedTextChar
+            filteredText[filteredText.indexOfFirst { it == HASH }] = filteredMaskedTextChar
         }
         return filteredText.toString()
     }

@@ -1,19 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:background="@color/white">
 
-    <Button
-        android:id="@+id/mainPhotoCropDemoButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Demo Photo Cropping"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:error="Error Text"
+            app:helper="Helper Text"
+            app:maskType="date" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="Currency"
+            android:theme="@style/MaskedInputTextLayoutTheme.Currency"
+            app:maskType="currency" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="Credit Card"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:maskType="credit_card" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="Date No Day"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:maskType="date_mm_yyyy" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="Iban"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:maskType="iban" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="Phone"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:maskType="phone" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="SSN"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:maskType="ssn" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="TC"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:maskType="tc_id" />
+
+        <com.hipo.maskededittext.MaskedTextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_40"
+            android:hint="Static Text"
+            android:theme="@style/MaskedInputTextLayoutTheme"
+            app:maskType="static_text" />
+
+    </LinearLayout>
+</ScrollView>
